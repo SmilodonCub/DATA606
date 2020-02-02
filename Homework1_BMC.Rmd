@@ -1,0 +1,70 @@
+---
+title: 'Homework1: Introduction to Data'
+author: "Bonnie Cooper"
+date: "2/1/2020"
+output:
+  pdf_document: default
+  html_document:
+    highlight: pygments
+    theme: cerulean
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### 1) Smoking habits of UK residents
+
+#### (a) What does each row of the data matrix represent?
+Each row represents an observational unit, or case.
+
+#### (b) How many participants were included in the survey?
+1691
+
+#### (c) Indicate whether each variable in the study is numerical or categorical. If numerical, identify as continuous or dicrete. If categorical, indicate if the varaible is ordinal.
+Numerical Variables: age, amtWeekends, antWeekdays. All three are discrete.
+Categorical Variables: sex (nominal), marital (nominal), grossIncome (ordinal), smoke (nominal)
+  
+
+ 
+### 2) Cheaters, scope of inference
+
+#### (a) Identify the population of interest and the sample in this study.
+Children between the ages of 5 and 15.  
+
+#### (b) Comment on whether or not the results of the study can be generalized to the population, and if the findings of the study can be used to establish causal relationships.
+The study cannot be generalized to the whole population, because it uses subjects from very targeted and very specific population of interest (children 5-15yo).  
+The study establishes a causal relationship of cheating rates and self control (whether children were given instructions or not), because it is a randomized experiment that manipulates an explanatory variable (self control (instruction/no instruction)) and measures a response variable (honesty (cheating rates)).
+
+
+
+### 3) Reading the paper
+
+#### (a) Risks, Smokers Found More Prone to Dementia: Based on the study, can we conclude that smoking causes dementia later in life? Explain your reasoning.
+The dementia study of smokers is a retrspective observational study which establishes as association of dementia with smoking. However, it does not establisha causal relationship, because this data consists of a series of observations whereas a randomized experiment would be necessary to infer causation.
+
+#### (b) The School Bully Is Sleepy: How best can you describe the conclusion that can be drawn from this study?
+The study is a prospective observational study which shows an association of sleep disorder symptoms with disruptive behavior or bullying. However, it does not demonstrate causation between the two. Therefore, saying that sleep disorders lead to bullying in school is not justified. To establish a causation, a study involving a randomized expriment would need to be implemented. Also, more objective measures of disruptive behavior would make the study more powerful, because assessments from parents and teachers relies too much on anecdotal reporting.
+
+
+
+### 4) Exercise and Mental Health.
+
+##### (a) What type of study is this?
+Randomized Experiment with Blocking.  
+
+##### (b) What are the treatment and control groups in this study?
+Treatment: exercise twice a week.
+Control: no exercise.  
+
+##### (c) Does the study make use of blocking? If so, what is the blocking variable?  
+Yes, this study uses age for blocking into groups 18-30, 31-40 and 41-55 years of age.  
+
+##### (d) Does this study make use of blinding?
+No. The subjects of the experiment can distinguish whether they are in the exerise group or not, so the study is not blind.
+
+##### (e) Comment on whether or not the results of the study can be used to establish a causal relationship between exercise and mental health, and indicate whether or not the conclusions can be generalized to the population at large.
+This experiment uses the random division of patients into control and treatment to establish a causal effect of exercise on mental health. However, this causal relationship should not be generalized to the population at large, because it is possible that observed differences are due to natural variations in the population. Additionally, there are many different modes of exercise that can be used at different frequencies, so there are many other experimental factors to consider befor drawing conclusions about the general population.
+
+##### (f) Suppose you are given the task of determining if this proposed study should get funding. Would you have any reservations about the study proposal?
+Yes, I would have reservations about funding this study. The association of exercise to mental health could be studied more rigorously by improving the study in a number of ways (e.g. different frequncies of exercise per week. different intensities of exercise. etc.)

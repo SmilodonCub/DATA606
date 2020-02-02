@@ -1,0 +1,47 @@
+---
+title: "Data606_getgoing"
+author: "Bonnie Cooper"
+date: "1/31/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Setting the environment for Data606
+
+LaTeX converter
+
+```{r}
+install.packages('tinytex')
+tinytex::install_tinytex()
+```
+
+## R Packages
+
+Packages we will need for the class:
+
+```{r}
+install.packages(c('openintro','OIdata','devtools','tidyverse', 'ggplot2',
+                   'psych','reshape2','knitr','markdown','shiny','R.rsp',
+                   'fivethirtyeight'))
+devtools::install_github("jbryer/DATA606", force = TRUE)
+
+```
+
+## The Data606 R Package
+
+some commands to get started with:
+
+```{r}
+library('DATA606')          # Load the package
+vignette(package='DATA606') # Lists vignettes in the DATA606 package
+vignette('os4')             # Loads a PDF of the OpenIntro Statistics book
+data(package='DATA606')     # Lists data available in the package
+getLabs()                   # Returns a list of the available labs
+viewLab('Lab1')             # Opens Lab1 in the default web browser
+startLab('Lab1')            # Starts Lab1 (copies to getwd()), opens the Rmd file
+shiny_demo()                # Lists available Shiny apps
+```
+
