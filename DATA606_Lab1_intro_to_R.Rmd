@@ -1,0 +1,175 @@
+---
+title: 'Lab1: Introduction to R and RStudio'
+author: "Bonnie Cooper"
+date: "2/1/2020"
+output:
+  pdf_document: default
+  html_document:
+    css: ./lab.css
+    highlight: pygments
+    theme: cerulean
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Getting Started 
+
+loading the data & getting a preview with the head() function
+
+```{r load-present-data, eval=TRUE}
+source("more/present.R")
+head( present )
+```
+
+### Task 1
+#### What years are included in this data set? What are the dimensions of the data frame and what are the variable or column names?
+    
+```{r}
+# let's use the summary() function to get an overview of our dataframe
+summary( present )
+```
+    
+From this output of summary() we can see that there are three columns, or variables to the data with the names: 'year', 'boys' & 'girls.
+
+```{r}
+#we can get the dimensions of our dataset with the dim() function
+dim( present )
+```
+
+From the output of dim() we can see that there are 63 rows with entries of the 3 different data variables.
+This is not a large dataset, so we can simply view the data in the 'years' column to see what years are included in the data set
+
+```{r}
+#we can look at the values of the 'year' column to see what is includedin the 
+#dataset
+present$year
+```
+
+Indeed, the output above gives us a good idea of what years are imcluded, but what if our dataset had 63,000 entries instead of just 63?
+Let's use a few simple ways to explicitly learn about the 'years' data.
+
+```{r}
+# we can use the summary() function to access informtion about the features of 
+#our dataset. the 'Min.' and 'Max.' values will give us an idea of the range or 
+#years that are covered by this data.
+print( summary(present$year)['Min.'] )
+print( summary(present$year)['Max.'] )
+```
+
+The summary() functions gives us some summary statistics on the feature 'year' for our data frame 'present'. From this we get the range of years Min.:Max. = 1940-2002
+
+```{r}
+#make a vector that holds the values for the years from the 'Min.' to 'Max.' of 
+#'year'
+yearsInRange <- seq(summary(present$year)[['Min.']][1],summary(present$year)[['Max.']][1],by=1)
+#check to see if the values in yearsInRange equals those in present$years
+all( yearsInRange == present$year )
+```
+
+The above few lines of code gives a little sanity check that comfirms that 'year' includes each year from 1940 to 2002 inclusive of both ends of the range.
+
+
+### Task 2
+#### How do these counts compare to Arbuthnot's? Are they on a similar scale?
+
+```{r}
+#load the arbthnot dataframe so that we can compare values
+source("more/arbuthnot.r")
+#use the summary() function to look at the summary statistics for the 'boys' and #'girls' counts data.
+summary( arbuthnot )
+summary( present )
+```
+
+A glance at the Mean values for 'boys' and 'girls' features for both datasets suggests that the counts for the 'present' data are several orders of magnitude greater than that of the 'arbuthnot' dataset.
+We can further quantify this....
+
+```{r}
+#take a subset of arbuthnot that has the same dimensions (number of years) as 
+#the present dataset. We are just doing this to get an idea of the differences 
+#in magnutide between the counts in the datasets, so we will just arbitrarily 
+#use the first 63 entries to match the number of entries in 'present'
+subArbuthnot <- arbuthnot[ 1:dim( present )[1],]
+#check that the dimensions are the same
+dim( subArbuthnot ) == dim( present )
+#calculate the mean proportion of 'boys' counts that are from the subset of the #'arbuthnot' dataset 
+meanRatioBoys <- mean( subArbuthnot$boys / present$boys)
+#calculate the mean proportion of 'girls' counts that are from the subset of the #'arbuthnot' dataset
+meanRatioGirls <- mean( subArbuthnot$girls / present$girls )
+cat("Proportion of arbuthnot 'boys' counts: ", meanRatioBoys )
+cat("Proportion of arbuthnot 'girls' counts: ", meanRatioGirls )
+```
+
+From the proportions of counts for 'boys' and 'girls' above, we learn that the counts in the 'present' dataframe are approximately 3 orders of magnitude greater than those of the arbuthnot dataframe.
+
+
+### Task 3
+#### Make a plot that displays the boy-to-girl ratio for every year in the data set. What do you see? Does Arbuthnot's observation about boys being born in greater proportion than girls hold up in the U.S.? Include the plot in your response.
+
+
+```{r}
+#generate data  for the boy-to-girl ratio of the 'present' dataframe
+b2gRatio_present <- present$boys / present$girls
+#plot the ratio as a scatter plot
+plot(x = present$year, y = b2gRatio_present,
+     ylim=c(0.9,1.1),
+     xlab='Year',
+     ylab='Ratio (boys:girls)',
+     main='Ratio of boys:girls counts')
+abline(h=1, col="blue")
+```
+
+From the figure above we can see that the datapoints for each year lie above 1.00 (indicated here with a blue line). This tells us that for each years counts had proportionately more boys counts than girl counts. If the counts were equal, the ratio's value would equal 1 (blue line), and if there had been a year with more 'girls' counts than 'boys', that ratio value would lie below 1.0. Neither of these alternatives are observed in the figure. Therefore, arbuthnot's observation about boys being born in greater proportion than girls does hold up in the U.S.
+
+However, this representation is not very intuitive, so we can recalculate and plot the data as a percentage of 'boys' counts from the total counts.
+
+```{r}
+#generate data  for the boy-to-girl ratio of the 'present' dataframe
+b2gPercent_present <- ( present$boys / ( present$girls + present$boys ) )*100
+#plot the ratio as a scatter plot
+p <- plot(x = present$year, y = b2gPercent_present,
+     ylim=c(48,52),
+     xlab='Year',
+     ylab='% boys',
+     main="Percentage of 'boys' counts")
+abline(h=50, col="blue")
+
+```
+
+The figure above replots the data as a percentage of 'boys' counts. This is more intuitive as most people are very familiar with considering percentages of a quantity rather than ratios of two quantities.
+From this representation we see the same finding: for each year of the data, the 'boys' counts make up a larger percentage of the total counts than 'girls' counts do, because each point of %boys counts data is greater than 50% (indicated with a blue line in the figure).
+
+
+
+### Task 4
+#### In what year did we see the most total number of births in the U.S.? 
+
+```{r}
+#make a new column in the present dataframe to hold values of the total number 
+#of births ('boys' + 'girls')
+present$total <- ( present$boys + present$girls )
+#use the head() function to check that the addition of the total column worked 
+#as expected
+head( present )
+#find the max value of the total column
+present[ present$total == max( present$total ) ,]
+```
+
+From the above result, we see that the year with the highest count value was 1961.
+This is surprising and not what was expected from our previous analysis of the arbuthnot dataset. The arbuthnot data had an overall trend of an increase as a function of years. If the present dataset were to follow the same trend, the expected maximum value would be towards the later years in the 20th century or perhaps even on of the few datapoints in the 2000s.
+
+Let's plot 'total' as a function of years
+
+```{r}
+#plot 'total'
+plot(present$year, present$total,
+     xlab='Year',
+     ylab='count',
+     main="Total Number of Births")
+```
+
+The plot of the total population counts above confirms that the year 1961 represents the peak of birth counts that occured during the mid 20th century in the U.S. and confirms that the term Baby Boomers is not an exaggeration at all!
+
+
+

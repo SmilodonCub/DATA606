@@ -1,0 +1,275 @@
+---
+title: 'Lab Assignment #2: Introduction to data'
+author: "Bonnie Cooper"
+output:
+  pdf_document: default
+  html_document:
+    css: ./lab.css
+    highlight: pygments
+    theme: cerulean
+---
+
+In this lab, you will gain insight into public health
+by generating simple graphical and numerical summaries of a data set collected 
+by the Centers for Disease Control and Prevention (CDC).
+
+
+We begin by loading the data set of 20,000 observations into the R workspace. 
+After launching RStudio, enter the following command.
+
+```{r load-data, eval=TRUE}
+source("more/cdc.R")
+```
+
+To view the names of the variables, type the command
+
+```{r names, eval=TRUE}
+names(cdc)
+```
+
+1.  How many cases are there in this data set?  How many variables?  For each 
+    variable, identify its data type (e.g. categorical, discrete).
+
+#### How many cases are there in this data set? How many variables?
+```{r}
+
+dimcdc <- dim( cdc )
+#How many cases are there in this data set?
+cat( 'There are', dimcdc[1], 'cases in this data set.' )
+# How many variables?
+cat( 'There are', dimcdc[2], 'variables in this data set.' )
+```
+#### For each variable, identify its data type (e.g. categorical, discrete).
+
+Variable | Data Type
+---------|------------
+genhlth  | categorical
+exerany  | categorical
+hlthplan | categorical
+smoke100 | categorical
+height   | discrete
+weight   | discrete
+wtdesire | discrete
+age      | discrete
+gender   | categorical
+
+
+
+
+2.  Create a numerical summary for `height` and `age`, and compute the 
+    interquartile range for each. Compute the relative frequency distribution for
+    `gender` and `exerany`. How many males are in the sample? What proportion of
+    the sample reports being in excellent health?
+    
+#### Create a numerical summary for `height`
+```{r}
+summary( cdc$height )
+```
+
+#### Compute the interquartile range for 'height'
+```{r}
+heightIQR <- as.numeric( summary( cdc$height )['3rd Qu.'] - 
+                           summary( cdc$height )['1st Qu.'] )
+cat( "The IQR for 'height' =", heightIQR )
+```
+
+
+#### Create a numerical summary for `age`
+```{r}
+summary( cdc$age )
+```
+
+#### Compute the interquartile range for 'age'
+```{r}
+ageIQR <- as.numeric( summary( cdc$age )['3rd Qu.'] - 
+                        summary( cdc$age )['1st Qu.'] )
+cat( "The IQR for 'age' =", ageIQR )
+```
+
+#### Compute the relative frequency distribution for gender.
+```{r}
+table(cdc$gender)/length( cdc$gender )
+```
+
+#### How many males are in the sample?
+
+```{r}
+numMales <- as.numeric( table(cdc$gender)['m'] )
+cat( 'There are', numMales, 'males in this sample of survey data')
+```
+
+#### Compute the relative frequency distribution for exerany.
+```{r}
+table(cdc$exerany)/length( cdc$exerany )
+```
+
+#### What proportion of the sample reports being in excellent health?
+```{r}
+proEx <- as.numeric( table(cdc$genhlth)['excellent']/length(cdc$genhlth) )
+cat( 'Proportion of sample reporting excellent health:', proEx)
+```
+
+
+
+3.  What does the mosaic plot reveal about smoking habits and gender?
+
+#### What does the mosaic plot reveal about smoking habits and gender?  
+The mosaic plot reveals that proportionately more males than females report smoking at least 100 cigarettes
+
+
+
+
+4.  Create a new object called `under23_and_smoke` that contains all observations 
+    of respondents under the age of 23 that have smoked 100 cigarettes in their 
+    lifetime. Write the command you used to create the new object as the answer
+    to this exercise.
+
+#### under23_and_smoke
+```{r}
+under23_and_smoke <- subset( cdc, age < 23 & smoke100 == 1)
+```
+
+
+Next let's consider a new variable that doesn't show up directly in this data 
+set: Body Mass Index (BMI) 
+([http://en.wikipedia.org/wiki/Body_mass_index](http://en.wikipedia.org/wiki/Body_mass_index)). 
+BMI is a weight to height ratio and can be calculated as:
+
+\[ BMI = \frac{weight~(lb)}{height~(in)^2} * 703 \]
+
+703 is the approximate conversion factor to change units from metric (meters and 
+kilograms) to imperial (inches and pounds).
+
+The following two lines first make a new object called `bmi` and then creates 
+box plots of these values, defining groups by the variable `cdc$genhlth`.
+
+```{r boxplot-bmi, eval=TRUE}
+bmi <- (cdc$weight / cdc$height^2) * 703
+boxplot(bmi ~ cdc$genhlth)
+```
+
+
+5.  What does this box plot show? Pick another categorical variable from the 
+    data set and see how it relates to BMI. List the variable you chose, why you
+    might think it would have a relationship to BMI,  and indicate what the 
+    figure seems to suggest. 
+
+#### What does this box plot show?  
+This box plot show a trend in the data for an increase in BMI with decreases self reporting of health status.
+
+```{r}
+boxplot(bmi ~ cdc$gender)
+```
+
+#### Exercise 5 cont. 
+I chose the 'gender' categorical variable to plot in relation to BMI. I did this thinking that it would show that females have a higher average BMI than males. However, this boxplot does not support that assumption. Rather, it suggests the opposite, that the typical male has a slightly higher BMI than the typical female.
+
+
+* * *
+
+## On Your Own
+
+6.   Make a scatterplot of weight versus desired weight. Describe the 
+    relationship between these two variables.
+    
+    
+```{r}
+plot(cdc$weight ~ cdc$wtdesire)
+```
+<db>
+
+The above plot shows the relation of 'weight' as a function of 'wtdesire'. The two features appear to be directly related: weight increases as a function of desired weight.     
+
+7.   Let's consider a new variable: the difference between desired weight 
+    (`wtdesire`) and current weight (`weight`). Create this new variable by 
+    subtracting the two columns in the data frame and assigning them to a new 
+    object called `wdiff`.
+
+```{r}
+#add a variable to the sample cdc dataframe that calculates the difference between the desired weight and the reported weight.
+cdc$wdiff <- cdc$wtdesire - cdc$weight
+```
+
+
+2.   What type of data is `wdiff`? If an observation `wdiff` is 0, what does 
+    this mean about the person's weight and desired weight. What if `wdiff` is 
+    positive or negative?
+    
+The new data feature, 'wdiff' is a discrete variable that indicates the magnitude and sign of the difference between a record's desired weight and the reported weight. If there is no difference in weight, then the person is at thier desired weight. If, however, 'wdiff' is negative, then the person's reported weight is greater than the desired weight & the this person would like to lose weight. The opposite is the case for positive 'wdiff' values. Positive 'wdiff' cases have a higher desired weight than the reported weight and, therefore, would like to gain weight.
+
+3.   Describe the distribution of `wdiff` in terms of its center, shape, and 
+    spread, including any plots you use. What does this tell us about how people 
+    feel about their current weight?
+    
+```{r}
+#histogram of wdiff
+hist( cdc$wdiff, breaks = 100, xlim = c(-150, 75) )
+```
+    
+The histogram above plots the distribution of of 'wdiff'. The center of the data is less than 0 and the shape of the data is left-skewed. 
+
+```{r}
+#boxplot of wdiff
+boxplot(cdc$wdiff, ylim = c(-150, 75), main = 'Box Plot of cdc$wdiff')
+```
+
+The boxplot of 'wdiff' shows a close-up & more quantitative view of the spread of the data: the IQR bounds the data by approximately -25-0. (to be verified with summary())
+
+
+4.   Using numerical summaries and a side-by-side box plot, determine if men tend
+    to view their weight differently than women.
+    
+```{r}
+bp <- boxplot(cdc$wdiff ~ cdc$gender, ylim = c(-200, 100))
+bp$stats
+```
+
+A side-by-side box plot and comparison of the numerical statistical summaries for the two distributions do not reveal any major differences in how men and women view thier weight. The distributions for men and women appear very similar; if anything the distribution for women has a slightly wider spread. However, the medians and interquartile differences are very similar ( medians: -5, -10 & IQD: -20, -27 for males and females respectively)
+
+5.   Now it's time to get creative. Find the mean and standard deviation of 
+    `weight` and determine what proportion of the weights are within one 
+    standard deviation of the mean.
+    
+```{r}
+#find the mean of 'weight'
+wtMean <- mean( cdc$weight )
+#find the standard deviation of 'weight'
+wtSd <- sd( cdc$weight )
+#find the upper and lower bounds that define +/- 1STD from the mean
+lowerbound <- wtMean - wtSd
+upperbound <- wtMean + wtSd
+#count the subset of entries in cdc$weight that lie within these bounds
+numInRange <- sum( cdc$weight > lowerbound & cdc$weight < upperbound )
+cat( 'The proportion of weights within one standard deviation of the mean = ', numInRange/length( cdc$weight ) )
+```
+
+6.   Something I got curious about.... 
+
+
+```{r}
+#use the cut() function the create another variable that categorizes the data based on the discrepancy found in cdc$wdiff:
+#"10lbs+ Heavier" if wdiff <= -10
+#"~Tar. Range" is wdiff is within +/- 10lbs of the desired weight
+#"10lbs+ Lower" if wdiff >= 10
+cdc$wdiffcat <- cut(cdc$wdiff, c(-Inf,-10,10,Inf), c("10lbs+ Heavier", "~Tar. Range", "10lbs+ Lower")) 
+bpcats <- boxplot(bmi ~ cdc$wdiffcat, 
+        horizontal = TRUE,
+        at = c(1,2,3),
+        names = c("10lbs+\nHeavier", "~Tar.\nRange", "10lbs+\nLighter"),
+        las = 2,
+        ylab = "",
+        xlab = 'BMI',
+        main = "BMI & the difference in desired & reported weight")
+
+bpcats$stats
+```
+
+
+&nbsp;&nbsp;&nbsp;From 'wdiff', I categorized the records based on whether the person wanted to gain > 10lbs, whether they wants to lose >10lbs, or whether the person reports weighing within +/- 10lbs of thier desired weight. The 10lbs over/under boundary was chosen arbitrarily.  
+&nbsp;&nbsp;&nbsp;There is an predictable relationship between the desire to lose/gain weight as a function of BMI: people who desired to gain weight would be expected to have a lower BMI than people within 10lbs of thier desired weight range and the opposite would be expected of people who desire to lose weight. Indeed, this is exactly what the data categorization suggests where the categorical mean values were found to be '10lbs+ Heavier' (28.2) > '~Tar. Range' (23.21) > '10lbs+ Lighter' (21.5).  
+&nbsp;&nbsp;&nbsp;How do these values correspond to the BMI ranges outlined by [health professionals](https://www.nhs.uk/common-health-questions/lifestyle/what-is-the-body-mass-index-bmi/)? Healthy BMIs are within the range 18.5 to 24.9, whereas overweight BMIs are from 25 and greater. Therefore, the 'typical' member of the '10lbs+ Lighter' category already has a very healthy BMI. However, the desire to gain >10lbs could risk that. The 'typical' member of the '10lbs+ Heavier' category does indeed have a high BMI and weight loss would be recommended. The typical person within +/-10lbs of thier target weight likely has a very healthy BMI & should maintain course.  
+<br><br><br>  
+
+
+
+<!-- This is a product of OpenIntro that is released under a Creative Commons Attribution-ShareAlike 3.0 Unported. This lab was written by Mine Çetinkaya-Rundel and Andrew Bray. -->
