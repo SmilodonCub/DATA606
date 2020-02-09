@@ -1,0 +1,73 @@
+---
+title: "DATA606_os4_readings"
+author: "Bonnie Cooper"
+date: "2/8/2020"
+output:
+  html_document:
+    css: ./lab.css
+    highlight: pygments
+    theme: cerulean
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+<br><br>
+
+## OpenIntro Statistics Reading Notes
+<br><br>
+
+```{r, echo = FALSE}
+library( tidyverse )
+library( dplyr )
+library( ggplot2 )
+```
+
+
+### Chapter 2: Summarizing Data
+<br>
+This Chapter focuses on the mechanics of generating summary statistics and summary graphs of data in R
+<br>
+
+#### 2.1 Examining Numerical Data
+<br>
+
+summarizing numerical variables using the loan50 and county datasets
+
+```{r}
+#read the .csv files from URLs hosted on github into R dataframes 
+countyURL <- 'https://raw.githubusercontent.com/SmilodonCub/DATA606/master/county.csv'
+loan50URL <- 'https://raw.githubusercontent.com/SmilodonCub/DATA606/master/loan50.csv'
+county <- read.csv( url( countyURL ) )
+loan50 <- read.csv( url( loan50URL ) )
+```
+
+##### Scatterplots for paired data
+
+case-by-case view of data for numerical variables
+
+```{r}
+data2plot <- loan50 %>% select( Income = total_income, Loan = loan_amount )
+ggplot(data2plot, aes(x=Income, y=Loan)) +
+    geom_point(shape=1) +    # Use hollow circles
+    geom_smooth()            # Add a loess smoothed fit curve with confidence region
+#> `geom_smooth()` using method = 'loess'
+```
+
+The relationship between variables in these two graphs is NONLINEAR: shows relationships best described with curvature rather than a straight line.
+
+```{r}
+data2plot <- county %>% select( Pov_Rate = poverty, Income = median_hh_income )
+ggplot(data2plot, aes(x=Pov_Rate, y=Income)) +
+    geom_point(shape=1) +    # Use hollow circles
+    geom_smooth()            # Add a loess smoothed fit curve with confidence region
+#> `geom_smooth()` using method = 'loess'
+```
+
+#### Dot plots for single variables.
+Mean is a common ay to measure the center of a distribution
+Sum(values)/num(values)
+the sample mean can be computed as the sum of the observed values divided by the number of observations.
+mu represents the average of all observations in the population; the sample mean provides a rough estimate of mu. the sample mean is a point estimate; the larger the sample, the better the estimate.
+
+

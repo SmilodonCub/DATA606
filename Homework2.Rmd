@@ -32,6 +32,22 @@ scores <- c(57, 66, 69, 71, 72, 73, 74, 77, 78, 78, 79, 79, 81, 81, 82, 83, 83, 
 
 ```
 
+**My Solution**:
+Using the boxplot() function to create a boxplot of the final exam scores
+
+```{r}
+scoresBoxplot <- boxplot( scores,
+         main = 'Distribution of Student Final Exam Scores',
+         xlab = 'Student Group',
+         ylab = 'Exam Score' )
+
+cat( 'The scoresBoxplot has a lower whisker = ', scoresBoxplot$stats[1],
+     '\na lower hinge (1st quartile) = ', scoresBoxplot$stats[2], 
+     '\na median value = ', scoresBoxplot$stats[3], 
+     '\nan upper hinge (3rd quartile) = ', scoresBoxplot$stats[4],
+     '\nand an upper whisker = ', scoresBoxplot$stats[5],
+     '\nAdditionally, there is one outlier value, ', scoresBoxplot$out)
+```
 
 
 
@@ -60,8 +76,13 @@ boxPlot(rs, xlab = "(1)", ylab = "", col = COL[1,3])
 boxPlot(sym, xlab = "(2)", ylab = "", col = COL[1,3])
 boxPlot(uni, xlab = "(3)", ylab = "", col = COL[1,3])
 ```
+<br><br>  
 
+**My Solution**:  
 
+* Histogram 'a' is best described as a symmetric data set and corresponds to boxplot 2.
+* Histrogram 'b' is a uniform or flat distribution; this data set corresponds to boxplot 3.
+* Histogram 'c' is right skewed and corresponds to boxplot 1.
 
 
 
@@ -78,6 +99,16 @@ boxPlot(uni, xlab = "(3)", ylab = "", col = COL[1,3])
 (d) Annual salaries of the employees at a Fortune 500 company where only a few high level
 executives earn much higher salaries than the all other employees.
 
+
+**My Response**.  
+
+(a) Right-skewed: this distribution would be expected to have a mean value that is skewed to the right of the media by all the values that lie far above the 3rd quartile (>1M). The median would be the best representation of a typical data observation and the IQR would best represent the variability of the data, because these measures are more robust to the effect of the outlier data points.  
+
+(b) Symmetric, because the 1st and 3rd quartiles are equidistant about the median and there are very few values expected to be > 1.5 the IQR. For this distribution, because the effect of outliers is expected to be minimal, the mean would be the best representation of a typical data observations and the standard deviation would be best to capture the spread of the data.  
+
+(c) Right-skewed: because most of the student population is under 21, the majority of the reported drink frequencies will be 0, a substantial proportion of students will report drinking 1-several drinks a week. However, there are be relatively few students whom report drinking many beers/week. (This might resemble a poisson distribution?). The students who report drining many beers a weekwill skew the mean od the data to the right of the median. Because of this skew to the data distribution, median would be the best to estiate a typical data observation and the IQR would best represent the variability of the data  (these measures are more robust to the effects of the outliers).  
+
+(d) Left-skewed: I would expect this distribution to be left skewed, but this might only serve to reveal how naive I am to corporate America. I assume there will be no employees working for free, many people working low-medum wage supportive roles, a large proportion making above the U.S. median wage, and then a sharp fall-off in numbers with the relatively few very high-earning CEOs. As with the other skewed data distributions, the median would be the best to represent a typical data observation and the IQR would best represent the variability of the data (these measures are more robust to the effect of the outliers).
 
 
 
@@ -106,27 +137,72 @@ boxPlot(heartTr$survtime, fact = heartTr$transplant,
 
 (a) Based on the mosaic plot, is survival independent of whether or not the 
 patient got a transplant? Explain your reasoning.
+
+**My Response**.  
+The mosaic plot suggests that survival is not independent of receiving a transplant, because a higher proportion of patients that received transplants survived when compared to the control group. However, the sample number is rather small, so it is unclear from this plor alone whether this is convincing evidence for an effect of treatment.
+<br>
+
 (b) What do the box plots below suggest about the efficacy (effectiveness) of the heart transplant treatment.
+
+**My Response**.  
+The box plots show the distribution of survival time in days. This plot compares the control and treatment groups side-by-side. This comparison reveals that the median survival time is greater for patients that recieved the treatments compared to the control group. Additionally, the spread of the data given by the IQR bars shows that the range of the survival times for patients that recieved transplants spans a much greater time-range than the control group.
+<br>
+
 (c) What proportion of patients in the treatment group and what proportion of 
 patients in the control group died?
+
+**My Response**.
+```{r}
+#make an R data.frame of the data
+transplantResults <- data.frame( "group"=c('control','treatment'),
+                                 "total"=c(34,69),
+                                 "died"=c(30,45))
+#add a column that calculates the proportion of each group that died
+transplantResults$propdied <- transplantResults$died / 
+  transplantResults$total
+#format some output text
+cat( 'Proportion of patients in treatment group that died = ', 
+     transplantResults$propdied[2], 
+     '\nProportion of patients in control group that died = ',
+     transplantResults$propdied[1])
+```
+
+
 (d) One approach for investigating whether or not the treatment is effective 
 is to use a randomization technique.
 
 i. What are the claims being tested?
+
+**My Response**.  
+the randomization technique tests the two competing claims:
+
+* Independence model:  that treatment and survival outcome are independent.
+* Alternative: that treatment and survival outcome are NOT independent.
+<br>
+
 ii. The paragraph below describes the set up for such approach, if we were 
 to do it without using statistical software. Fill in the blanks with a number 
 or phrase, whichever is appropriate.
 
-> We write *alive* on __________ cards representing patients who were 
-alive at the end of the study, and *dead* on _________ cards 
+
+```{r}
+transplantResults$survived <- transplantResults$total - 
+  transplantResults$died
+transplantResTotals <- colSums(transplantResults[,c(2,3,4,5)])
+transplantResTotals
+```
+
+
+> We write *alive* on ___28___ cards representing patients who were 
+alive at the end of the study, and *dead* on ___75___ cards 
 representing patients who were not. Then, we shuffle these cards and split them 
-into two groups: one group of size _________ representing treatment, and 
-another group of size __________ representing control. We calculate the 
+into two groups: one group of size ___69___ representing treatment, and 
+another group of size ___34___ representing control. We calculate the 
 difference between the proportion of *dead* cards in the treatment and 
 control groups (treatment - control) and record this value. We repeat this 100 
-times to build a distribution centered at _________. Lastly, we calculate 
+times to build a distribution centered at ___0___. Lastly, we calculate 
 the fraction of simulations where the simulated differences in proportions are 
-_________. If this fraction is low, we conclude that it is unlikely to 
+___0.88-0.65=0.23___ ___(The proportion with >= the observed difference in proportions)___. If this fraction is low, we conclude that it is unlikely to 
 have observed such an outcome by chance and that the null hypothesis should 
 be rejected in favor of the alternative.
 
@@ -161,7 +237,9 @@ for(i in 1:length(diffs)){
 ```
 \end{center}
 
-
+**My Response**.  
+The observed difference in proportions: 0.8823529-0.6521739 = 0.230179  
+The histogram of the simulated differences in proportions do not appear to have a single value greater than 0.23. Therefore, we conclude that the evidence is sufficiently strong to reject the null hypothesis and assert that there is convincing evidence that the heart transplant treatment is an effect of treatment compared to the control group.
 
 
 
