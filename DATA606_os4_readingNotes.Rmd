@@ -71,3 +71,75 @@ the sample mean can be computed as the sum of the observed values divided by the
 mu represents the average of all observations in the population; the sample mean provides a rough estimate of mu. the sample mean is a point estimate; the larger the sample, the better the estimate.
 
 
+### Chapter 3: Probability  
+
+#### Probability
+
+**Probability:** the probability of an outcome is the proportion of times the outcome would occur if we observed the random process an infinite number of times. It always takes values between 0 and 1.
+
+**Law of Large Numbers:** The tendancy for the proportion of outcomes to converge on a mean proportion as the number of recorded events increases. As more observations are collected, the proportion p_hat of occurrences with a particular outcome converges to the probability p of that outome
+
+**Disjointed, or mutually exclusive events** are events that cannot both happem simultaneously. e.g. a die roll cannot simultaneously be '1' and '0'
+
+**Addition Rules**
+
+* **Addition Rule of Disjoint Outcomes:** if A1 and A2 represent two disjoint outcomes, then the probability of either event happening is found by adding the individual event probabilities: P(A1 or A2) = P(A1)+P(A2)
+* **General Addition Rule** if A and B are any two events, disjoint or not, then the probability that at least one of them will occur is: P( A or B )= P(A)+P(B)-P(A and B)
+
+**Probability Distribution** a list of all disjoint probability outcomes and their associated probabilities such that (1) the outcomes are disjoint (2)each probability is between 0 and 1 (3) the sum of probabilities is 1. Very convenient to visualize as a bar plot such that the bar heights = event probabilities
+
+**Sample Space** the set of all possible outcomes
+
+**Complement** the complement of A, A_c represents all the outcomes in the sample space not A such that P(A) + P(A_c) = 1
+
+**Independence** two processes can be independant if knowing the outcome of one provides no useful information about the outcome of the other.
+
+**Multiplication Rule for Independent Processes:** If A and B represent events from two different and independent processes, then the probability that both A and B occur can be calculated as the product of their seperate probabilities: P(A+B)=P(A)*P(B)
+
+#### Conditional Probability
+
+**Marginal Probability** probabiity based on a single variable without regard to any other variables P(A) or P(B)
+
+**Joint Probability** probabiity of outcomes for two or more variables or processes. P(A & B)
+
+**Conditional Probability** There are two parts to a conditional probability, the outcome of interest and the condition. the condition is information we know to be true and the outcome of interest can be described as a known outcome or event. P(A|B). The conditional probability of outcome A given condition B is computed as following: P(A|B)=P(A&B)/P(B)
+
+**General Multiplicative Rule** If A and B represent two outcomes or events, then P(A&B)=P(A|B)*P(B). Itis useful to think of A as the outcome of interest and B as the condition.
+Example: P(result=lived & inoculated=no) given that 
+P(result=lived | inoculated=no)=0.8588
+P(inoculated=no)=0.9608
+
+**Sum of Conditional Probabilities** Let A1,...,Ak represent all the disjoint outcomes for a variable or process. Then if B is an event, possibly for another variable or process, we have P(A1|B)+...+P(Ak|B)=1. The rule for complements also holds when an event and its complement are conditioned on the same information: P(A|B)=1-P(Acomp|B).
+
+**Bayes' Theorem: Inverting Probabilities:** consider the following conditional probability for variable 1 & variable 2:
+P(outcome A1 of V1 | outcome B of variable 2)
+Bayes' Theorem states that this conditional probabiity can be identified as the following fraction:
+P(B|A1)P(A1)/(P(B|A1)P(A1)+P(B|A2)P(A2)+...+P(B|Ak)P(Ak))
+where A2, A3, ..., Ak represent all other possible outcomes of the first variable.
+Basically, the numerator identifies the probability of getting both A1 & B. The denminator is the marginal probability of getting B.
+To apply Bayes' Theorem correctly, there are two preparatory steps:
+
+1. First identify the marginal probabilities of each possible outcome of the first variable: P(A1), P(A2), ...,P(Ak)
+2. The identify the probability of the outcome B, conditioned on each possible scenario for the first variable: P(B|A1), P(B|A2),...,P(B|Ak)
+Once each of these probabilities are identified, they can be applied directly within Bayes' formula.
+
+**Bayesian Statistics** applying Bayes' theorem allows us to update our belief about whether an event occured given a condition. updating beliefs using Bayes' Theorem is the foundation of Bayesian Statistics.
+
+**Replacement** If we sample from a small population without replacement, we no longer have independence between our observations. Sampling with replacement keeps events independent.
+
+**Random Variable** A random process or variable with a numerical outcome
+
+**Expected Value** The expected value for a random variable represents the average outcome. If a random variable, X, takes outcomes x1, x2,...,xk with probabilities P(X=x1),...,P(X=xk) the expected value of X is the sum of each outcome multiplied by its corresponding probability:
+E(X)=x1 x P(X=x1)+...+xk x P(X=xk) = sum(xi x P(X=xi)) = mu
+
+**General Variance Formula** If X takes outcomes x1,...xk with probabilities P(X=x1),...,P(X=xk) and expected value mu=E(X), then the variance of X, denoted by Var(X) or sigma^2, is
+sigma^2 = (x1-mu)^2 x P(X=x1)+...+(xk-mu)^2 x P(X=xk)
+The standard deviationof X labeled sigma is the sqrt of the variance
+
+**Linear Combinations** a fancy way to describe aX+bY where a and b are some fixed numbers. To compute the average value of a linear combination of random variables, plug in the average of each individual random variable and compute the result: aE(X)+bE(x). Recall that the expected value is the same as the mean,E(X)=mu.
+
+**Variability in Linear Combinations of Random Variables** understanding the uncertainty associated with the total outcome of the combination of random variables. The vaiance of a linear combination of random variables may be computed by squaring the constants, substituting in the variances for the random variables, and computing the result:
+Var(aX+bY)=a^2Var(X) + b^2Var(Y)
+This is valid as long as the random variables are independent. 
+
+**Probability Density Function** area under the curve = 1
