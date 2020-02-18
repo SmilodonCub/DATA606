@@ -2,8 +2,13 @@
 title: "Chapter 3 - Probability"
 author: "Bonnie Cooper"
 output:
-    pdf_document:
-        extra_dependencies: ["geometry", "multicol", "multirow"]
+  pdf_document:
+    extra_dependencies:
+    - geometry
+    - multicol
+    - multirow
+  html_document:
+    df_print: paged
 ---
 
 ```{r setup, include=FALSE}
@@ -49,7 +54,7 @@ outcomesFrequencyTable
 
 (a) What is the probability of getting a sum of 1?
 ```{r }
-test <- '0'
+test <- '1'
 result <- outcomesFrequencyTable[[test]]/numPossibleOutcomes
 cat( 'the probability of getting a sum of', test, 'is', result)
 ```
@@ -202,8 +207,8 @@ P( $M_Green \cap F_Blue$ ) = 0.064
 We can use the  Multiplication Rule for Independent Processes to test whether the eye colors of male responsents and their partners are independent. 
 If they are independent, then the P( $M_Blue \cap F_Blue$ ) should equal the product of P( M_Blue ) x P( F_Blue ).  
 However,  
-0.382 $\neq$ 0.559*0.529  
-0.559*0.529 = 0.296  
+0.382 $\neq$ 0.559 x 0.529  
+0.559 x 0.529 = 0.296  
 Therefore the eye color of male respondents and their partners is not independent.
 
 
@@ -231,15 +236,15 @@ based on whether they are nonfiction or fiction and hardcover or paperback.
 \end{center}
 
 (a) Find the probability of drawing a hardcover book first then a paperback fiction book second when drawing without replacement.  
-28/95 x 59/94 %~~% 0.185 
+28/95 x 59/94 $\approx$ 0.185 
 <br>
 
 (b) Determine the probability of drawing a fiction book first and then a hardcover book second, when drawing without replacement.  
-72/95 x 28/94 %~~% 0.226  
+72/95 x 28/94 $\approx$ 0.226  
 <br>
 
 (c) Calculate the probability of the scenario in part (b), except this time complete the calculations under the scenario where the first book is placed back on the bookcase before randomly drawing the second book.
-72/95 x 28/95 %~~% 0.223  
+72/95 x 28/95 $\approx$ 0.223  
 <br>
 
 (d) The final answers to parts (b) and (c) are very similar. Explain why this is the case.
