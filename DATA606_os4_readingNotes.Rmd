@@ -4,7 +4,7 @@ author: "Bonnie Cooper"
 date: "2/8/2020"
 output:
   html_document:
-    css: ./lab.css
+    #css: ./lab.css
     highlight: pygments
     theme: cerulean
 ---
@@ -143,3 +143,77 @@ Var(aX+bY)=a^2Var(X) + b^2Var(Y)
 This is valid as long as the random variables are independent. 
 
 **Probability Density Function** area under the curve = 1
+
+
+## Chapter 4 
+## Distributions of Random Variables
+
+### Normal Distribution
+symmetric, unimodal, bell curve. many variables are nearly normal but none are exactly normal. Id a normal distribution had mean mu and standard deviation sigma, we may write the distribution as N( mu,sigma )
+
+Standardizing with Zscores. put data onto a standardized scale which can make comparisons more reasonable.
+**Zscore** of an observation is defined as the number of standard deviations it falls above or below a mean. Observations above hte mean always have posiive Zscores, while those below the mean always have negative Zscores.  Z = ( x-mu )/sigma
+An observation is said to be more unusual than another observation if the absolute value of the Zscore is greater. |Z1|>|Z2|
+
+**Tail Areas** or percentile. use pnorm() function. Solve normal distribution problems by finding the Zscore
+**Always draw a picture first, and find the Zscore second** for any normal probability situation, always always always draw and label the normal curve and shade the area of interest first. the picture will provide an estimate of the probability. After drawing a figure to represent the situation, identify the Zscore for the value of interest. 
+Many software packages return the area to the left when given a Zscore, if you would like to calculate the area to the right, first find the area to the left and then subtract this amount from one. 
+
+Probability falling within:
+* 1 Standard Deviation from the mean: 68%
+* 2 Standard Deviation from the mean: 95%
+* 3 Standard Deviation from the mean: 99.7%
+If a distribution is truely normal, the probability of being more than 4 STDs from the mean if 1/15,000. 5 & 6 STDs is 1/2000000 & 1/500000000 respectively.
+
+### Geometric Distribution
+**Bernoulli distribution** when a rial only has two possible outcomes (e.g. success/failure). If X is a random variable that takes value 1 with a probability of success p and o with a probability 1-p, then X is a Bernoulli random variable with a mean and standard deviation.
+**Sample Proportion** the sample mean p_hat = #success/#trials
+**Geometric Distribution** describes how many trials it takes to observe a success. the waiting time until success for independent and identical distributed bernoulli random variables. In general, the probabilities for a geometric distribution decrease exponentially fast. If the probability of a success in one trial is p and the probability of a failure is 1-p, then the probability of finding the first success in the nth trial is given by (1-p)^n-1*p  The mean (i.e. expected value), variance and standard deviation of this wait time are given by: mu=1/p, sigma^2=(1-p)/p^2, sigma = sqrt( sigma^2 )
+It takes an average of 1/p trials to get a success under the geometric distribution.
+
+### Binomial distribution.
+The binomial distribution describes the number of successes in a fixed numbr of trials it describes the probability of having exacty k successes in N independent bernoulli trials with probability of a success p.
+suppose the probability of a single trial being a success is p. Then the probability of observing exactly k successes in n independent trials is given by:
+[ # of scenarios ]x P( single scenario ) ->
+n!/(k!(n-k)!) x p^k(1-p)^(n-k)
+The mean, variance, and standard deviation of the number of observed successes are: mu=np sigma^2=np(1-p) sigma = sqrt( sigma^2 )
+
+**is it binomial?**
+
+1. the trials are independent
+2. the number of trials, n, is fixed.
+3. Each trial outcome can be classified as a success or failure.
+4. the probability of a success, p, is the same for each trial.
+
+**Computing binomial probabilities**
+
+1. check if the model is appropriate
+2. identify n, p and k
+3. use software/formulas to determine the probability
+4. interpret the results
+
+Normal approximation to the bnomial distribution. In some cases we may use the normal distribution as an easier and faster way to estimate binomial probabilities.  The binomial distribution with probability of success p is nearly normal when the sample size , is sufficintly large that np and n(1-p) are both at least 10. The approximate normal distribution has parameters corresponding to the mean and standard deviation of the binomial distribution. mu=np  sigma = sqrt( np(1-p))
+
+The normal approximation breaks down on small intervals
+
+### Negative Binomial Distribution: describes the probability of observing the kth success on the nth trial where all trials are independent
+
+**Is it negative binomial?
+
+1. the trials are independent
+2. each trial outcome can be classified as a success or failure
+3. the probability of a success (p) is the same for each trial.
+4. the last trial must be a success
+
+break down the probability into the sum of the disjoint probabilities:
+=[ Number of possible sequences ] x P( Single sequence ):
+(n-1)!/((k-1)!(n-k)!) x p^k(1-p)^(n-k)
+
+**Binomial vs Negative Binomial**
+In the binomial case, we typically have a fixed number of trials and instead cinsider the number of successes. In the negative binomial case, we examine how may trials it takes to observe a fixed number of successes and require that the last observation be a success
+
+### Poisson distribution
+The rate of a poisson distribution is the average number of occurances in a mostly fixed population per unit time. The only parameter in the Poisson distribution is the rate - or how many events we expect to observe. Using the rate, we can describe the probability of observing exactly k events in a single unit of time.
+P(observed k events) = (lambda^k)(e^-lambda)/k!
+where the mean and standard deviation are given by lambda and sqrt(lambda) respectively.
+A random variable may follow a Poisson distribution if we are looking for the number of events, the population that generates such events is large, and the events occur independently of each other.
