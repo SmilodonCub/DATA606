@@ -217,3 +217,73 @@ The rate of a poisson distribution is the average number of occurances in a most
 P(observed k events) = (lambda^k)(e^-lambda)/k!
 where the mean and standard deviation are given by lambda and sqrt(lambda) respectively.
 A random variable may follow a Poisson distribution if we are looking for the number of events, the population that generates such events is large, and the events occur independently of each other.
+
+## Chapter 5 
+## Point estimates and sampling variability
+
+### Point estimates and sampling variability
+**point estimate** it is useful to think of a point estimate as a random draw from a sampling distribution
+**error**: sampling error and bias
+**sampling error** how much an estimate will tend to vary from one sample to the next
+**bias** systematic tendancy to over or under-estimate a variable
+A bigger sample tends to provide a more precise estimate than a smaller sample
+
+**Central Limit Theorem** when observations are independent and the sample size is sufficiently large, the sample proportion will tend to follow a normal distribution. In order for the central limit theorem to hold, the sample size is typically considered sufficiently large when np>= 10 and n(1-p)>=10, which i s called tthe success-failure condition. If the independence and success-failure conditions are both met, the central limit theorem can be applied and it is reasonable to model using a normal distribution.
+
+**independent observations:** the most common way for observations to be considered independent is if they are from a simple random sample. a random process, a random sample, or random assignment (e.g. treatment/control groups)
+
+### Confidence Intervals for a sample proportion
+when stating an estimate for aproportion, it is better practice to provide a plausible range of values instead of supplying just the point estimate.
+**confidence interval**: represents a range of plausible values where we are likely to find a parameter.
+**95% confident** = point estimate +/- 1.96 * sqrt(p(1-p)/n). When the distribution of a point estimate qualifies for the Cental Limit Theorem and therefore closely follows a normal distribution, we can construct a 95% confidence interval.
+**99% confident** = point estimate +/- 2..58 * sqrt(p(1-p)/n)
+**Confidence Interval using any Confidence Level** = point estimate +/- zScore(confidence level)*SE
+**Margin of Error** = zScore*SE
+
+**Constructing a Confidence Interval for a Single Proportion**  
+
+1. **Prepare** Identify p_hat and n, and determine what confidence level you wish to use.
+2. **Check** Verify the conditions to ensure p_hat is nearly normal. For one-proportion confidence intervals, use p_hat in place of p to check the success-failure condition.
+3. **Calculate** If the conditions hold, compute SE using p_hat, find zScore, and construct the interval.
+4. **Conclude** Interpret the confidence interval in the context of the problem.
+
+Interpreting confidence intervals: while it is useful to think about confidence intervals as a probability, the confidence level only quantifies how plausible it is that the parameter is in the given interval. Also, confidence intervals are only about the population parameter. A confidence interval says nothing about individial observations or point estimates. Aso, also, only applies to sampling error & does not take bias into account.
+
+### Hypothesis Testing for a Proportion
+**Null and Alternative Hypotheses**
+**H_0**: represents a skeptical perspective or a claim to be tested
+**H_A**: represents an alternative claim under consideration and is often represented by a range of possible parameter values. H_A generally represents a new or stronger perspective.
+
+Even is we fail to reject the null hypothesis, we typically do not accept the null hypothesis as true.
+
+**Double Negatives** In many statistial explanations, we use doube negatives. For instance, we might say that the null hypothesis is not implausible or we failed to reject the null hypothesis. Double negatives are used to communicate that while we are not rejecting a position, we are not saying it is correct.
+
+**Decision Errors** 
+**Type 1 Error** we reject the null hypothesis whem H_0 is actually true
+**Type 2 Error** we fail to reject the null hypothesis when the alternative is true.
+
+**Significance Level** indicates how often the data lead us to incorrectly reject H_0
+
+### Formal Testing using -pvalues  
+**p-values**: is the probability of observing data at least as favorable to the alternative hypothesis as our current data set, if the null hypothesis were true. Typically, a summary statistic of the data (e.g. sample proportion) is used to compute the p-value and evaluate the hypothesis.
+**Checking Success-Failure & Computing SEp_hat for a hypothesis test** When using the p-value method to evaluate a hpothesis test, we check the conditions for p_hat and construct the SE using the null value p_0, instead of using the sample proportion. In a hypothesis test with a p-value, we are supposing the null hypothesis is true, which is a different mindset than whne we compute a confidence interval. This is why we use p_0 instead of p-hat when we check conditions and compute the SE in this context.
+**Null Distribution** the sampling distribution under the null hypothesis
+**Compare the p-value to alpha to evaluate H_0** When the p-value is less than the significance level, alha, reject H_0. We would report a conclusion that the data provide strong evidence supporting the alternative hypothesis. When the p-value is greater than alpha, do not reject H_0, and report that we do not have sufficient evidence to reject the null hypothesis. Describe the conclusion in the context of the data.
+
+**Steps for Hypothesis Testing**  
+
+1. **Prepare** Identify the parameterof interest, list hypotheses, identify the significance level, and identify p_hat and n.
+2. **Check** Verify conditions to ensure p_hat is nearly normal under H_0. For one-proportion hypothesis tests, use the null value to check the success-failure condition.
+3. **Calculate** If the conditions hold, compute the standard error, again using p_0, compute the Z-score, and identify the p-value.
+4. **Conclude** Evaluate the hypothesis test by comparing the p-value to alpha, and provide a conclusion in the context of the data.
+
+### Choosing a Significance Level
+
+* If making a Type 1 Error is dangerous or especially costly, we should choose a small significance level to be cautious about rejecting the null hypothesis.
+* If a Type 2 Error is relatively more dangerous or much more costly, then we might set a higher significance level.
+* if the cost of data collection is small relative to the cost of a type2 error, then it makes sense to collect more data. This will reduce type2 errors without affecting type1 error rate.
+
+**1-sided Hypothesis Testing**: we compute the p-value as the tail area in the direction of the alternative hypothesis only.
+
+
+
