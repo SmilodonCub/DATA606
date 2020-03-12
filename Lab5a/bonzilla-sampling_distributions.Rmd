@@ -1,11 +1,11 @@
 ---
 title: 'Foundations for statistical inference - Sampling distributions'
 output:
+  pdf_document: default
   html_document:
     css: ./lab.css
     highlight: pygments
     theme: cerulean
-  pdf_document: default
 ---
 
 In this lab, we investigate the ways in which the statistics from a random 
