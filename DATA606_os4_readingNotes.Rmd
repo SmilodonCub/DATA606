@@ -286,4 +286,45 @@ Even is we fail to reject the null hypothesis, we typically do not accept the nu
 **1-sided Hypothesis Testing**: we compute the p-value as the tail area in the direction of the alternative hypothesis only.
 
 
+## Chapter 6
+## Inference for Categorical Data
+
+### Inference for a Single Proportion
+How to choose an appropriate sample size when collecting data for single proportions.
+**p_hat** sample proportion: assume normal if the sample observations are independent and is the sample size is sufficiently large. If these conditions are met, we can assume a **mean** (p) and a **standard error** SE=sqrt((p(1-p))/n) & **confidence interval** p_hat +/- z*xSE
+
+**success-failure condition** We expect to see at least 10 successes and 10 failures in the sample. np>=10 & n(1-p)>=10.
+
+### Hypothesis testing for a single proportion: once you've determines a one-proportion hypothesis test is the correct procedure, the are four steps to completing the test:  
+
+1. **Prepare** Identify the parameters of interest, list hypotheses, identify the sigificance level and identify p_hat and n.
+2. **Check** Verify conditions to ensure p_hat is nearly normal under H0. For one-proportion hypothesis tests, use the null value to check the success-failure condition.
+3. **Calculate** If the condition holds, compute the standard error, again using the p0, compute the Zscore, and identify the p-value.
+4. **Conclude** Evaluate the hypothesis test by comparing the p-value to alpha, and provide a conclusion in the context of the problem.
+
+**Clopper-Pearson interval** use for a confidence interval when the success-failure condition isn't met.
+
+### Choosing a sample size when estimating a proportion
+need to choose a sample size large enough that the margin of error is sufficiently small so that the sample is useful
+**margin of error** = z*( sqrt(p(1-p)/n))  solve for n
+if you have an estimate of p, use that. if not, assume the worst and use p=05 since at this p, the margin of error is greatest.
+
+### Difference of Two Proportions
+Verify that the point estimate can be modeled using a normaldistribution, compute the estimate's standard error & apply inferential framework...
+
+Conditions for the sampling distribution of p1-p2 to be normal  
+
+1. **Independence Extended** The data ae independent within and between the two groups. Generally this is satisfied if the data come from two independent random samples or if the data come from a randomized experiment.
+2. **Success-failure Conditions** The success-failure condition holds for both groups, where we check successes and failures in each group seperately.
+**Standard Error** SE = sqrt( p1(1-p1)/n1 + p2(1-p2)/n2 )
+**Confidence Interval** CI = ( p1-p2 ) +/- z*SE
+
+Hypothesis tests for the difference of two populations
+**Pooled Proportion** When the null hypothesis is that the proportions are equal, use the pooled proportion to verify the success-failure condition and estimate the standard error:
+p_pooled = (number of successes)/(number of cases) = (p1n1 + p2n2)/(n1+n2)
+
+### Testing for goodness of fit using chi-square
+
+
+
 
