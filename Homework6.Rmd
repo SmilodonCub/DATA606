@@ -129,9 +129,11 @@ We are 95% confident that California and Oregon have a difference of -0.0015 and
 \begin{tabular}{c c c c c}
 Woods	& Cultivated grassplot	& Deciduous forests	 & Other & Total \\
 \hline 
-4		& 16					& 67			     & 345	 & 426 \\
+4		& 16					& 61			     & 345	 & 426 \\
 \end{tabular}
 \end{center}
+
+**THERE IS A TYPO IN THE TABLE:** The value was 67 in the table, but 61 in the text. The table value has been changed to 61 because this makes the 'Total' correct.
 
 (a) Write the hypotheses for testing if barking deer prefer to forage in certain habitats over others.
 
@@ -146,10 +148,34 @@ Chi-Square test for a one-way table.
 are satisfied.
 
 **Independence** We assume that each case is independent of the other cases
-**Sample Size/ distribution** Each scenario must have at least 5 expected cases: This condition is not satisfied, because there are only 4 observtions in the 'Woods' category.
+**Sample Size/ distribution** Each scenario must have at least 5 expected cases: This condition is not satisfied, because there are only 4 observtions in the 'Woods' category. However, if we remove the 'Woods' category and discount the number of 'Woods' incidence from the total, we can proceed with the chi-squared test.
 
 (d) Do these data provide convincing evidence that barking deer pre-
 fer to forage in certain habitats over others? Conduct an appro- priate hypothesis test to answer this research question.
+
+The 'Woods' category has been removedso that we can evaluate the other categories with a chi-squared test: 
+
+\begin{center}
+\begin{tabular}{c c c c}
+Cultivated grassplot	& Deciduous forests	 & Other & Total \\
+\hline 
+16					& 61			     & 345	 & 422 \\
+\end{tabular}
+\end{center}
+
+```{r}
+CulGrass <- 16/426
+Dforest <- 61/426
+Other <- 345/426
+CulGrassE <- 0.147
+DforestE <- 0.396
+OtherE <- 1 - 0.147 - 0.396 - 0.048
+chiSQR <- (CulGrass-CulGrassE)^2/CulGrassE + (Dforest-DforestE)^2/DforestE + (Other-OtherE)^2/OtherE
+chiSQR
+```
+[P Value from Chi-Squared Calculator](https://www.socscistatistics.com/pvalues/chidistribution.aspx)
+
+The p-value for this chi-squared value & degrees of freedom= 2, is 0.727712. This is higher than conventional alpha levels, therefore we fail to reject the null hypothesis; the data give no indication that barking deer have a foraging preference for certain habitats.
 
 
 
@@ -179,14 +205,44 @@ fer to forage in certain habitats over others? Conduct an appro- priate hypothes
 
 
 (a) What type of test is appropriate for evaluating if there is an association between coffee intake and depression?
+
+Chi-squared test for two-way tables
+
 (b) Write the hypotheses for the test you identified in part (a).
+
+**Null Hypothesis** There is no inconsistency between the observed and expected proportions to indicate that there is a difference in depression & levels of coffee consumption 
+**Alternative Hypothesis** There are inconsistencies between the observed and expected proportions that suggest an effect of depression and coffee level consumption. 
+
 (c) Calculate the overall proportion of women who do and do not suffer from depression.
+
+```{r}
+depressionYES <- 2607/50739
+depressionNO <- 48132/50739
+cat( 'Women who suffer from depression :', depressionYES*100, '%',
+     '\nWomen who do not suffer from depression :', depressionNO*100, '%')
+```
+
+
 (d) Identify the expected count for the highlighted cell, and calculate the contribution of this cell to the test statistic, i.e. ($Observed - Expected)^2 / Expected$).
+
+```{r}
+contribution <- (373/2607 - depressionYES)^2/depressionYES
+cat('The contribution proportion to the test statistic is:', contribution)
+```
+
 (e) The test statistic is $\chi^2=20.93$. What is the p-value?
+
+[P Value from Chi-Squared Calculator](https://www.socscistatistics.com/pvalues/chidistribution.aspx)
+The degrees of freedom is 4 & with this chi-squared result, the p-value is 0.000327.
+
+
 (f) What is the conclusion of the hypothesis test?
+
+Since the p-value is very small, we can reject the null hypothesis. The data provide strong evidence that there is a link between coffee consumption and depression
+
 (g) One of the authors of this study was quoted on the NYTimes as saying it was "too early to recommend that women load up on extra coffee" based on just this study. Do you agree with this statement? Explain your reasoning.
 
-
+On a personal level, I am too big of a coffee fan to disagree with this statement. However, based on the chi-squared test alone I must agree. The chi0squared result only shows that the categorical proportions do not agree with the expected proportions; this gives no indication of which categories had a higher or lower proportion than expected. Further analysis would be needed to determine the nature of the relationship be tween coffee consumption and depression
 
 
 
