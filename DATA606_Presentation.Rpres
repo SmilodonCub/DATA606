@@ -1,0 +1,188 @@
+<style>
+.small-code pre code {
+  font-size: 1em;
+}
+</style>
+DATA606 Presentation
+========================================================
+author: Bonnie Cooper
+date: 
+autosize: true
+
+<br>
+practice homework problems # 6.23 & 6.25:  
+Offshore Drilliing, Part I & II
+
+
+6.23 Offshore Drilling, Part I
+========================================================
+
+A survey asked 827 randomly sampled registered voters in California “Do
+you support? Or do you oppose? Drilling for oil and natural gas off the Coast of California? Or do you not know enough to say?” Below is the distribution of responses, separated based on whether or not the respondent graduated from college.
+
+<center>
+
+|             | College | Grad |
+|-------------|---------|------|
+|             | Yes     | No   |
+| Support     | 154     | 132  |
+| Oppose      | 180     | 126  |
+| Do not know | 104     | 131  |
+| Total       | 438     | 389  |
+
+</center>
+
+6.23 (a)
+========================================================
+class: small-code
+
+What percent of college graduates and what percent of the
+non-college graduates in this sample do not know enough to
+have an opinion on drilling for oil and natural gas off the
+Coast of California?
+
+
+```{r}
+cYes_dontknow <- 104
+cYes_total <- 438
+cNo_dontknow <- 131
+cNo_total <- 389
+cYes_dontknow_p <- round( cYes_dontknow / cYes_total * 100, 1)
+cNo_dontknow_p <- round( cNo_dontknow / cNo_total * 100, 1)
+cat( cYes_dontknow_p, '% college graduates do not know enough to have an opinion.\n\n', cNo_dontknow_p, '% of non-college graduates do not know enough to have an opinion')
+```
+
+6.23 (b)
+========================================================
+Conduct a hypothesis test to determine if the data provide
+strong evidence that the proportion of college graduates who
+do not have an opinion on this issue is different than that of
+non-college graduates.
+
+We will walk through the 4 steps of Hypothesis Testing:
+
+1. **Prepare:** list hypotheses
+2. **Check:** are the conditions for inference met?
+3. **Calculate:** compute SE, Z-score & the p-value
+4. **Conclude:** evaluate the hypotheses & provide a conclusion in the context of the data
+
+
+6.23 (b) Prepare
+========================================================
+class: small-code
+
+**Prepare:** 
+
+* Null Hypothesis: cYes_dontknow_p == cNo_dontknow_p  
+<small>The propotion of college graduates that responded 'do not know' is the same as the proportion of non-college graduates that responded 'do not know'.</small>
+* Alternative Hypothesis: cYes_dontknow_p != cNo_dontknow_p  
+<small>The propotion of college graduates that responded 'do not know' is different than the proportion of non-college graduates that responded 'do not know'.</small>
+ 
+
+6.23 (b) Check
+========================================================
+class: small-code
+
+**Check:**
+
+* Independence: Yes, the participants were randomly sampled
+* Success-failure: Yes, we show this by verifying that **np** and **n(1-p)** are both > 10 where p= the pooled proportion. Here the pooled propotion is used, because it estimates the proportion of the whole where the null hypothesis is true
+
+```{r}
+p_pooled <- (104 + 131)/(438 + 389)
+successFailures <- c( cYes_dontknow * p_pooled,
+                      cNo_dontknow * p_pooled,
+                      cYes_dontknow*( 1 - p_pooled ),
+                      cNo_dontknow *( 1 - p_pooled ) )
+successFailures >= 10
+```
+
+
+6.23 (b) Calculate
+========================================================
+class: small-code
+
+**Calculate:** 
+
+```{r}
+SE <- sqrt( p_pooled*(1-p_pooled)/cYes_total +
+                p_pooled*(1-p_pooled)/cNo_total ) 
+pointEst <- cYes_dontknow / cYes_total - cNo_dontknow / cNo_total
+Zscore <- (pointEst - 0)/SE
+pVal <- 2*pnorm( -abs(Zscore))
+pVal
+```
+
+
+6.23 (b) Conclude
+========================================================
+class: small-code
+
+**Conclude:** 
+
+The p-value is very small, therefore we can reject the Null Hypothesis and accept the Alternative which states that there is a difference of proportions between the College & Non-college graduates who responded that thay 'do not know' enough to have an opinion on drilling for oil and natural gas off the
+Coast of California.  
+Additionally, because the 23.7% of college graduates < 33.7% of non-college graduates, we can conclude that proportionately fewer college graduates say they 'do not know' compared to non-college graduates
+
+
+
+6.25 Offshore Drilling, Part II (a)
+========================================================
+class: small-code
+
+What percent of college graduates and what percent of the non-college graduates in this sample support drilling for oil and natural gas off the Coast of California?
+
+```{r}
+cYes_support <- 154
+cYes_total <- 438
+cNo_support <- 132
+cNo_total <- 389
+cYes_support_p <- round( cYes_support / cYes_total * 100, 1)
+cNo_support_p <- round( cNo_support / cNo_total * 100, 1)
+cat( cYes_support_p, '% college graduates support drilling off-shore.\n\n', cNo_support_p, '% of non-college graduates support drilling off-shore' )
+```
+
+
+6.25 (b) Prepare & Check
+========================================================
+class: small-code
+<small>
+Conduct a hypothesis test to determine if the data provide strong evidence that the proportion of college graduates who support off-shore drilling is different than that of non-college graduates.  
+
+**Prepare:** 
+* Null Hypothesis: cYes_support_p == cNo_support_p  
+* Alternative Hypothesis: cYes_support_p != cNo_support_p  
+
+**Check:**  
+Independence ( randomly sampled ) & Success-failure conditions are met:
+</small>
+```{r}
+p_pooled <- (154 + 132)/(438 + 389)
+successFailures <- c( cYes_support * p_pooled,
+                      cNo_support * p_pooled,
+                      cYes_support*( 1 - p_pooled ),
+                      cNo_support *( 1 - p_pooled ) )
+successFailures >= 10
+```
+
+
+6.25 (b) Calculate & Conclude
+========================================================
+class: small-code
+
+**Calculate:** 
+
+```{r}
+SE <- sqrt( p_pooled*(1-p_pooled)/cYes_total +
+                p_pooled*(1-p_pooled)/cNo_total ) 
+pointEst <- cYes_support / cYes_total - cNo_support / cNo_total
+Zscore <- (pointEst - 0)/SE
+pVal <- 2*pnorm( -abs(Zscore))
+pVal
+```
+
+
+**Conclude:** 
+
+The p-value is very large, therefore we cannot reject the Null Hypothesis. We accept that there is no difference of proportions between the College & Non-college graduates who responded that they 'Support' drilling for oil and natural gas off the Coast of California.  
+
