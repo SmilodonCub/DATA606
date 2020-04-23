@@ -326,5 +326,68 @@ p_pooled = (number of successes)/(number of cases) = (p1n1 + p2n2)/(n1+n2)
 ### Testing for goodness of fit using chi-square
 
 
+## Chapter 7
+## Inference for Numerical Data
+
+### One sample means with the t-distribution
+
+**Central Limit Theorem for the Sample Mean** when we collect sufficintly large sample of n independent observations from a population with mean mu and standard deviation sigma, the sample distribution of xbar will be nearly normal with Mean=mu and SE=sigma/sqrt(n)
+**How to perform the Normality Check** Thre is no perfect way to check the normality condition, so instead we use two rules of thumb:  
+
+1. **n<30** if the sample size n is less than 30 and there are no clear outliers in the data, then we typically assume the data came from a nearly normal distribution
+2. **n>=30** if the sample size of n is greater than or equal to 30 and there are no particularly extreme outliers, then we typically assume the sampling distribution of xbar is nearly normal, even if the underlying distribution of individual observations is not.
+
+In practice, we cannot directly calculate the SE for xbar since we do not know the population standard deviation sigma, so we estimate with the sample standard deviation: **SE = sigma/sqrt(n) ~~ sampleSD/sqrt(n)**
+
+**t-distribution** used for inference calculations. has a thicker tail so thatobservations are more likely to fall beyond 2 SD from the mean; this helps correct for using the sampleSD in place of sigma. for large n, the t-distribution is nearly indistinguishable from the normal distribution.
+
+**Degrees of Freedom** the degrees of freedom describes the shape of the t-distribution. the larger the degrees of freedom, the more closely the distribution approximates the normal model. When modeling xbar using the t-distribution, use df= n-1
+
+#### One Sample t-confidence intervals
+In the normal model, we use z and the SE to determine the width of a confidence interval. **CI = xbar +/- t_df*sampleSD/sqrt(n)**
+Where xbar is the sample mean, t_df corresponds to the confidence level and degrees of freedom, and SE is the standard error as estimated by the sample.
+
+**Confidence Interval for a Single Mean:**
+Once you've determines a one-mean confidence interval would be helpful for an application there are four-steps to constructing the interval.  
+
+1. **Prepare** Identify xbar, s, n and determine the confidence level you wish to use
+2. **Check** Varify the conditions to ensure xbar is nearly normal.
+3. **Calculate** If the conditions hold, compute SE, find the t_df and construct the interval
 
 
+## Chapter 8
+## Introduction to Liner Regression
+
+### fitting a line, residuals, and correlation
+**Linear regression** is the statistical method for fitting a line to data where the relationship between two variables, x and y, can be modeled by a straight line with some error.
+y = B0 + B1*x + error, where x is the explanatory/predictor variable and y is the response.
+**Residuals** are the leftover variation in the data after accounting for the model fit. A goal in picking the right regression fit is for residuals to be as small as possible. residual is the difference between the observed and the expected values.
+**Correlation** the strength of a linear relationship. correlation takes values between -1 and 1.
+R = 1/(n-1)*sum((x-xbar/Sdx)*(y-ybar/SDy)). Only when the relationship is perfectly linear is the correlation ever 1 or -1. If there is no appearant linear relationship between the variables, then the correlation will be near zero.
+
+### **Least Squares Regression:** choose a line that minimizes the sum of the squared residuals
+te least squares is 1) most common 2) widely supported by stats software & 3) squaring the residuals accounts for the fact that a residual twice as large as another residual is more than twice as bad.
+Conditions for the least squares fit:
+
+1. Linearity. data should show a linear trend
+2. Nearly Normal Residuals. e.g. no extreme outliers
+3. Constant variability. variability doesn't change as a function of x.
+4. Independent observations.
+
+Slope of least squares line can be estimated as : SDy/SDx * R = ratio of sample standard deviations times the correlation.
+The point (Xmean,Ymean) is on the least squares line by definition.
+The slope describes the estimated difference in the y variable if the explanatory variable x for a case happened to be one unit larger. The intercept describes the average outcome of y if x=0 and the linear model is valid all the way through 0, which in many applications is not the case.
+
+**extrapolation** applying a model estimate to values outside of the realm of the original data.
+
+**R^2** how closely the data cluster around a linear fit. described the amount of variation in the response that is explined by the least squares line.
+
+### categorical predictors with two levels. 
+the estimated intercept is the value of the response variable for the first category( i.e. the category corresponding to the indicator value 0). the estimated slope is the average change in the response variavle between the two categories.
+
+### Types of Outliers in Linear Regression
+which outliers are iportant and influential.
+**Leverage** points that fall horizontally away from the center of the cloud tend to pull harder on the line, so we call them points with higher leverage.
+**influential point** a high leverage points that influences the slope of the regression line.
+
+### Inference fro Linear Regression
