@@ -1,0 +1,134 @@
+---
+title: Disaster Declarations Dataset
+author: Bonnie M Cooper
+output:
+  prettydoc::html_pretty:
+    theme: leonids
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+<img src="sandy.png" width="100%" height="100%" />
+## Analysis of Federal Disaster Closeout Durations 
+
+### Introduction  
+The Federal Emergency Management Agency (FEMA) maintains the Disaster Declarations Summary, a dataset that summarizes all federally declared disasters. The record goes back to the first federal dissaster declaration in 1953, a tornado on May 2nd in Georgia. The Disaster Declarations Summary is raw unedited data much of which was manually entered from highly variable historical records. This analysis will tackle the unique structure and idiosynchracies of the dataset to present an analysis disaster durations for various categories of Federal disasters. Additionally, regionally differences in disaster duration will be explored.
+    
+
+### Data Preparation
+Loading libraries used
+```{r, message=FALSE}
+# Load relevant libraries
+library(tidyverse)
+library(ggplot2)
+library(lubridate)
+```
+Loading the Disaster Declaration Dataset to an R data.frame
+```{r, warning=FALSE}
+URL <- "https://raw.githubusercontent.com/SmilodonCub/DATA606/master/DisasterDeclarationsSummaries1.csv"
+#subset the data for features relevant to this analysistime duration between declarationDate and disasterCloseOutDate
+#calculate the 
+disaster_df <- read_csv( URL ) 
+
+disaster_df <- disaster_df%>% 
+    select( disasterNumber, disasterType, declarationDate, disasterCloseOutDate, 
+            incidentType, ihProgramDeclared, iaProgramDeclared, paProgramDeclared, 
+            hmProgramDeclared,incidentBeginDate, incidentEndDate, state, declaredCountyArea, 
+            placeCode) %>%
+    mutate( interval = declarationDate %--% disasterCloseOutDate,
+            duration_secs = int_length( interval ))
+head( disaster_df )
+```
+
+
+### Research question 
+
+**You should phrase your research question in a way that matches up with the scope of inference your dataset allows for.**
+
+Has Disaster Closeout time changed significantly in the time that FEMA has been issuing disaster declarations? Is the change consistent across disaster type? Geographical region?
+
+
+### Cases 
+
+**What are the cases, and how many are there?**
+
+Each case represents a FEMA declared disaster event. There are `nrow( disaster_df )` events documented in this data set.
+
+
+### Data collection 
+
+**Describe the method of data collection.**
+
+Data is collected by the [Federal Emergency Management Agency](http://nces.ed.gov//) (FEMA) as part of the [OpenFEMA Dataset](https://www.fema.gov/openfema) (OpenFEMA) in an effort to make data freely available in machine readable formats
+
+
+### Type of study 
+
+**What type of study is this (observational/experiment)?**
+
+This is an observational study.
+
+
+### Data Source 
+
+**If you collected the data, state self-collected. If not, provide a citation/link.**
+
+Data is collected by OpenFEMA and is available online here: [OpenFEMA Dataset: Disaster Declarations Summaries - V2](https://www.fema.gov/openfema-dataset-disaster-declarations-summaries-v2) For this project, data was uploaded to the authors github to facilitate access.
+
+
+
+### Response 
+
+**What is the response variable, and what type is it (numerical/categorical)?**
+
+The response variable is the disaster duration which is to be calculated from the difference between the 'incidentBeginDate' and 'incidentEndDate' features and is a numerical variable.
+
+
+### Explanatory 
+
+**What is the explanatory variable, and what type is it (numerical/categorical)?**
+
+The explanatory variables are categorical: disaster type ('incidentType') and geographical region (fipsStateCode & fipsCountyCode).
+
+
+### Relevant summary statistics 
+
+**Provide summary statistics relevant to your research question. For example, if you’re comparing means across groups provide means, SDs, sample sizes of each group. This step requires the use of R, hence a code chunk is provided below. Insert more code chunks as needed.**
+
+Summary Statistics for Disaster Durations
+```{r}
+#format date interval
+disaster_df$duration_days <- as.numeric(as.character(day(seconds_to_period(disaster_df$duration_secs))))
+print('Summary Statistics given in Days')
+summarystats <-summary(disaster_df$duration_days)
+summarystats
+```
+
+Summary Statistics for Duration (Days) by Disaster Type
+```{r}
+groupedbyDType <- disaster_df %>%
+    group_by( disasterType ) %>%
+    summarise( count = n(), 
+               mean = mean(duration_days, na.rm = TRUE),
+               median = median(duration_days, na.rm = TRUE),
+               IQR = IQR(duration_days, na.rm = TRUE)
+               )
+groupedbyDType
+```
+Boxplot of Disaster Types Summary Stats
+```{r}
+typesD <- c('Major Disaster', 'Emergency Declaration', 'Fire Management', 'Fire Suppression')
+ggplot(groupedbyDType, aes(x = as.factor(disasterType))) +
+  geom_boxplot(aes(
+      lower = median - IQR, 
+      upper = median + IQR, 
+      middle = median, 
+      ymin = median - 3*IQR, 
+      ymax = median + 3*IQR),
+    stat = "identity") +
+    ggtitle('Disaster Type Duration Comparison') +
+    xlab('Disaster Type') +
+    ylab('Duration (days)') +
+    scale_x_discrete(labels = typesD)
+```
+
