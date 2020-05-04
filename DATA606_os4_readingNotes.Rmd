@@ -391,3 +391,56 @@ which outliers are iportant and influential.
 **influential point** a high leverage points that influences the slope of the regression line.
 
 ### Inference fro Linear Regression
+
+## Chapter 9
+### Multiple and Logistic Regression
+**Multiple Regression** extends simple two-variable regression to the case that still has one response but many predictors. The method is motivated by scenarios where many variabls may be simultaneously connected to an output. A mulitple regression model is a linear model with many predictors. In general, we writ the model as: 
+y_hat = beta0 + beta1x1 + beta2x2 + ... + betaKxK
+where there are K predictors. We always estimate the betaI parameters using statistical software.
+**Correlation among predictor variables**  two predictor variables are collinear when they are correlates, and this collinearity complicates model estimation.
+**Adjusted R^2** The regular R^2 is a biased estimate of the amount of variability explained by the model when applied to a new sample of data. The reasoning behind the adjusted R^2 lies in the degrees of freedon associated with each variance. If we were to make predictions for new data using out current model, we would find that the unadjusted R^2 would tend to be slightly overly optimistic, while the adjusted R^2 formula helps correct this bias
+**full model** model that includes all available explanatory variables.
+**parsimonious model** model that has been pruned of irrelevant variabes.
+**Step-wise model selection strategies** add or delete one variable at a time and see what has best description of data variance. (i.e. highest R^2).
+**Backward Elimination** starts with the full model and works backwards by eliminating the vaiable that adds the most to the R^2 value.
+**Forward Elimination** starts wih no variables included in the model and adds in variables according to their importnace until no other importnat variables are found.
+**Backward Elimination with the p-value approach** In backward elimination, we would identify the predictor corresponding to the largest p-value. If the p-value is above the significancelevel (usually 0.05), then we would drop the variable, refit the model, and repeat the process. If the largest p-value is less than alpha=0.05, then we would not eliminate any predictors and the current model would be our best-fitting model.
+**Forward selection with the p-value approach** Reverse the Backward Elimination process: begin with a model that has no predictors, then fit a model for each possible predictor, identifying the model where the corresponding predictor's p-value is smallest. If that p-value is smaller than alpha=0.05, we add it to the model and repeat the process, considering whether to add more variables one-at-a-time. When none of the remaining predictors can be added to the model and have a p-value less than 0.05, then we sto adding variables and the current model would be our best fitting model.
+**Adjusted R^2 vs. p-value approach**  
+
+* When the sole goal is to improve prediction accuracy, use R^2adj. This is commonly the case in machine learning applications
+* When we care about understanding which variables are statistically significant predictors of the response, or if there is interest in producing a simpler model at the potential cost of a little prediction accuracy, then the p-value approach is prefered.
+
+### Checking model conditions using graphs.
+
+Multiple regression methods generally depend on four conditions:
+
+1. the residuals of the model are nearly normal
+  + check for outliers by looking at a histogram of the residuals. things don't have to be perfect, but the envelope should be approximately normal.
+2. the variability of the residuals is nearly constant
+  + a plot of absolute value of the residuals against the corresponding fitted values. A fitted line should be approximately flat.
+3. the residuals are independent
+  + check for patterns in the order that data are collected (e.g. annual)
+4. each variable is linearly related to the outcome
+  + check residuals against each predictor variable.
+  
+### Transforming data  
+
+* log transformation
+* square root transformation
+* inverse transformation
+* truncation (cap the max value possible)
+
+**All models are wrong, but some are useful** The truth is that no model is perfect. However, even imperfect models can be useful. Reporting a flawed model can be reasonable so long as we are clear and report the model's shortcomings.
+
+## Introduction to Logistic Regression
+**logistic regression** for modelling categorical variables with 2 levels (yes/no)
+**Generalized Linear Models (GLM)** fro response variables where regular multiple regression does not work very well.
+**logit transformation** logit(p_i) = log_e(p_i/(1-p_i))
+building the logistic model with many variables
+**Akaike Information Criterion (AIC)**
+
+Logistic Regression Conditions:
+
+1. Each outcome Y_i is independent from the other outcomes
+2. Each predictor x_i is linearly related to logit(p_i) if all other predictors are held constant
