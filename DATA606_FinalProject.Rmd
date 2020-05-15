@@ -1,0 +1,533 @@
+---
+title: FEMA Disaster Declarations Closeout Times
+author: Bonnie M Cooper
+output:
+  prettydoc::html_pretty:
+    theme: leonids
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+<img src="sandy.png" width="100%" height="100%" />
+
+
+## Introduction
+
+&nbsp;&nbsp;&nbsp;&nbsp;Natural disasters have a devastating societal and economic effect on regions in the US. For example, since 1980, natural disasters have been estimated to have cost the US 1.75 trillion dollars [(1)](https://www.climate.gov/news-features/blogs/beyond-data/2010-2019-landmark-decade-us-billion-dollar-weather-and-climate) with 2018 alone having an impact of approximately 306 billion USD [(2)](https://oceanleadership.org/natural-disasters-cost-u-s-record-306-billion-last-year/). Observational evidence indicates that not only are the economic costs of natural disasters rising [(3)](https://www.pnas.org/content/116/43/21450), but the frequency of natural disasters worldwide are on the rise as well [(4)](https://www.sciencedirect.com/science/article/pii/S2212094715300347). Alarmingly, climate models project that the increasing trend in natural disaster frequency will likely accelerate due to the effects of global warming [(5)](https://earthobservatory.nasa.gov/features/RisingCost/rising_cost5.php) which in turn will lead to an increase of associated costs [(6)](https://e360.yale.edu/digest/natural-disasters-could-cost-20-percent-more-by-2040-due-to-climate-change).  
+&nbsp;&nbsp;&nbsp;&nbsp;Budgetting for natural disasters is a necessity and if the frequency of natural disasters are increasing, then it is important brace for impact and to allocate appropriate resources. However, it is also necessary to evaluate the efficacy our ability to address natural disasters. This analysis will attempt evaluate the efficiency that natural disasters are handled by the federal government by analyzing Disaster Closeout times for various natural disasters. Has Disaster Closeout time changed significantly in the time that FEMA has been issuing disaster declarations? Is the change consistent across disaster type? Geographical region? Such questions are important to consider to evaluate whether costs associated with natural disasters could be inflated because of a change in behavior of how the federal government manages disaster relief.  
+&nbsp;&nbsp;&nbsp;&nbsp;The Federal Emergency Management Agency (FEMA) maintains the Disaster Declarations Summary, a dataset that summarizes all federally declared disasters. The record goes back to the first federal dissaster declaration in 1953, a tornado on May 2nd in Georgia. The Disaster Declarations Summary is raw unedited data much of which was manually entered from highly variable historical records. This analysis will tackle the unique structure and idiosynchracies of the dataset to present an analysis of disaster durations for various categories of Federal disaster declarations. Additionally, regionally differences in disaster duration will be explored.
+<br><br>
+![](fig2.jpg)
+**Figure 1:** Increasing frequency of Natural Disasters [(4)](https://www.sciencedirect.com/science/article/pii/S2212094715300347)
+<br><br>
+![](F2.large.jpg)
+**Figure 2:** Increasing costs associated with Natural Disasters [(3)](https://www.pnas.org/content/116/43/21450)
+
+## The FEMA Disaster Declarations Summary
+
+&nbsp;&nbsp;&nbsp;&nbsp;The FEMA Disaster Declarations Summary is a dataset collected by the [Federal Emergency Management Agency](http://nces.ed.gov//) (FEMA) as part of the [OpenFEMA Dataset](https://www.fema.gov/openfema) (OpenFEMA) in an effort to make data 'freely available in machine readable formats'. The data is a summary of collected disaster declarations from FEMA's National Emergency Management Information System (NEMIS) and is a collection of historical (observational) data that spans approximately 70 years of data collection. Much of the data was recorded by hand and consequently is subject to a small degree of human error.  
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;To describe the dataset further, the following code will load the data as an R data.frame:
+
+First: Load relevant R libraries:
+```{r, message=FALSE}
+# Load relevant libraries
+library(tidyverse)
+library(ggplot2)
+library(lubridate)
+library(usmap)
+library(gridExtra)
+library(caret)
+library(DMwR)
+library(car)
+```
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;The Data is hosted by OpenFEMA and is made freely available: [OpenFEMA Dataset: Disaster Declarations Summaries - V2](https://www.fema.gov/openfema-dataset-disaster-declarations-summaries-v2) For this project, it was necessary to have the county and state FIPS (Federal Information Processing Standard) numbers, because a visualization library, usmap, requires the numbers. However, for reasons unknown to the author, this data was not included in the Openfema downloadable .csv file. The following code will wraggle the data into a form that better suites the needs of this analysis
+ 
+<br>
+Loading the Disaster Declaration Datasets to an R data.frames and collate necessary information:
+```{r, message=F,warning=FALSE}
+#to format state and county fips numbers (necessary for plotting with usmap), these lists will be helpful
+stateIn <- c( "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA", "HI", "ID", "IL", "IN", "IA","KS", "KY", "LA", "ME", "MD", "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC", "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY", "AS", "GU", "MP", "PR", "VI")
+stateFips <- c("01", "02", "04", "05", "06", "08", "09", "10", "12", "13", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "40", "41", "42", "44", "45", "46", "47", "48", "49", "50", "51", "53", "54", "55", "56", "60", "66", "69", "72", "78" )
+#URL to the uploaded copy of the dataset
+URL <- "https://raw.githubusercontent.com/SmilodonCub/DATA606/master/DisasterDeclarationsSummaries1.csv"
+
+#load the data as an R data.frame
+disaster_df <- read_csv( URL ) 
+originalNum <- dim( disaster_df )[1]
+
+#use tidyverse methods to wrangle the data.frame into better condition
+disaster_df <- disaster_df%>% 
+    #select specific data features
+    select( disasterNumber, disasterType, declarationDate, disasterCloseOutDate, 
+            incidentType, ihProgramDeclared, iaProgramDeclared, paProgramDeclared, 
+            hmProgramDeclared,incidentBeginDate, incidentEndDate, state, declaredCountyArea, 
+            placeCode, fyDeclared ) %>%
+    #select records that have placeCode information
+    filter( placeCode >= 0 ) %>%
+    #new feature: make a time interval (lubridate method) from the disaster declaration date to the close date
+    mutate( int_declaration = declarationDate %--% disasterCloseOutDate,
+            int_incident = incidentBeginDate %--% incidentEndDate,
+            #new feature: int_length returns the length of an interval in seconds
+            declarationDur_secs = int_length( int_declaration ),
+            incidentDur_secs = int_length( int_incident ) ) %>%
+    #new feature: build county & state fips data
+    mutate( placeCode = as.character(placeCode), #placecode = 99 + (3 digit county number)
+            #the last 3 digits of placeCode are for a states county
+            county3 = substr(placeCode, nchar(placeCode)-3+1, nchar(placeCode)),
+            #new feature to translate state postal id to state fips number
+            statefips = stateFips[ match( state, stateIn )],
+            #county fips = state fips + (3 digit county number)
+            countyfips = paste0( statefips, county3))
+head( disaster_df )
+```
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;The output above displays the first several rows of `r nrow( disaster_df )` records in the data.frame. The source data held `r originalNum` records. Together, the dataset holds the record for every natural disaster declaration that the federal government has declared since the formality was introduced in the early 1950s as a measure to facilitate and expedite the allocation of funds. However, the data wranging criteria (e.g. filtering records for records with `placeCode` entries) wittled down the number of records. Each record, or case, holds information for a disaster declaration.
+<br>
+Display the variable (column) lables:
+```{r}
+colnames( disaster_df )
+```
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;There are `r length(colnames(disaster_df))` variables in the data.frame `disaster_df`. Of particular interest for this analysis is the response variable, disaster duration which is to be calculated from the difference between the `declarationDate` and `disasterCloseOutDate` features (numerical variable). The relationship between disaster duration and explanatory variables suh as the disaster types, program declared and geographic location will be explored. FEMA disaster records are historical observational data points, and as such will not establish causal links between disaster durations and other data features. However, this analysis will reveal insightful relationships between the variables. The data set is comprehensive and ecompasses all declared disasters (save for `r originalNum - dim(disaster_df)[1]` that were filtered earlier). However, the estimates made in this analysis should not be generalized to all future disaster declarations as the there may be changes in FEMA disaster management or data collection protocals.
+<br>
+
+## Exploratory Data Analysis 
+An exploratory analysis of `disaster_df` to report relevant statistics and visualizations of the data. 
+
+Summary Statistics for Disaster Declaration Durations: How long does it takes FEMA to manage a natural disaster from the declaration to the close of the disaster.
+```{r}
+#format date interval
+disaster_df$duration_days <- as.numeric(as.character(day(seconds_to_period(disaster_df$declarationDur_secs))))
+#display summary statistics
+print('Summary Statistics given in Days')
+olddurstats <-summary(disaster_df$duration_days)
+olddurstats
+```
+
+Summary Statistics for the Incident Durations: Numbers that characterize the duration of the actual natural disaster.
+```{r}
+#format date interval
+disaster_df$incident_days <- as.numeric(as.character(day(seconds_to_period(disaster_df$incidentDur_secs))))
+#display summary statistics
+print('Summary Statistics given in Days')
+summarystats <-summary(disaster_df$incident_days)
+summarystats
+
+```
+<br>
+The summary statistics reveal that the typical FEMA Disaster Declaration duration is approximately two orders of magnitude longer than the duration of the average natural disaster. It is not surprizing that the FEMA closeout takes much longer than the natural disaster. An earthquake may only last moments, a storm system can pass through a region over the course of several days or a forest fire can rage for weeks. However, the FEMA closeout process is not concluded untill 'all financial transactions for all associated programs are completed'. It may take many years for a large natural disaster through a metropolitan region to be concluded.
+
+Display the longest declaration durations and compare to the longest lasting natural disasters:
+```{r}
+a <- distinct( disaster_df )
+decTop5 <- disaster_df %>%
+    arrange( desc( duration_days ) ) %>%
+    top_n( 5, wt=duration_days ) %>%
+    select( disasterNumber, incidentType, incidentBeginDate, state, countyfips, duration_days, incident_days )
+decTop5
+```
+<br>
+This output shows the same event listed as several instances, one for each county that was affected. This is a problem for the above summary statistics, because it counts multiple records for the same event. As a result, the statistics will be biased for the durations of large natural disasters that involved more counties than smaller disasters.
+
+To calculate summary statistics for events, group the records by `disasterNumber` `incidentType` and `incidentBeginDate` (`disasterNumber` is not unique to a disaster and seems to follow an assignment logic that FEMA does not feel like sharing.) and count the number of counties involved:
+```{r}
+groupedByEvent <- disaster_df %>%
+    group_by( disasterNumber, incidentType, incidentBeginDate, duration_days, incident_days ) %>%
+    summarise( countiesInvolved = n(),
+               statesInvolved = n_distinct( state )) %>%
+    arrange( desc( duration_days ) )
+head( groupedByEvent, 5 )
+```
+<br>
+That's much better! The output above now displays each event as a single record. Now to recalculate the summary statistics for disaster durations:
+```{r}
+print('Summary Statistics given in Days')
+summary( groupedByEvent$duration_days )
+print('Summary Statistics given in Days')
+summary( groupedByEvent$incident_days )
+```
+<br>
+Print out the previous summary statistics to demonstrate how biased that results were towards longer declaration durations
+```{r}
+olddurstats
+```
+<br>
+This discrepancy is very interesting: This analysis will further explore the relationship between the number of counties involved in a given natural disaster and the declaration duration.
+Is there a relationship between the number of counties involved in a natural disaster and the declaration duration?
+```{r, warning=F}
+p1 <- ggplot(groupedByEvent, aes( x = countiesInvolved, y = duration_days, 
+                                  color = incidentType )) +
+    geom_point( size = 1 ) +
+    labs( title = "Disaster Declaration Duration relationship with Number of Counties Involved") +
+    ylab( "Disaster Declaration Duration (days)" ) +
+    xlab( "Counties") +
+    xlim( c( 0, 100))
+p1
+```
+<br>
+A relationship might exist, but it might be better to evaluate by incident type. This will be pursued later in the analysis.
+
+Is there an obvious relationship between the duration of a declaration and the disaster?
+```{r, warning=F}
+p1 <- ggplot(groupedByEvent, aes( x = duration_days, y = incident_days, 
+                                  color = incidentType )) +
+    geom_point( size = 1 ) +
+    labs( title = "Disaster Declaration Duration relationship with duration of the Incident") +
+    ylab( "Disaster Declaration Duration (days)" ) +
+    xlab( "Incident Duration (days)") +
+    ylim( c( 0, 300))
+p1
+```
+<br>
+There is no obvious relationship seem when plotting all the data together like this. However, it would be interesting to explore this relationship by incident type. For example, do fires that burn longer take longer for FEMA to closeout on the case?  
+
+Reformat the data to arrive at summary statistics for Duration (Days) by Disaster Type
+```{r}
+groupedbyDType <- disaster_df %>%
+    group_by( disasterNumber, incidentType, incidentBeginDate, duration_days, incident_days ) %>%
+    group_by( incidentType ) %>%
+    summarise( count = n(), 
+               dmean = mean(duration_days, na.rm = TRUE),
+               dmedian = median(duration_days, na.rm = TRUE),
+               dIQR = IQR(duration_days, na.rm = TRUE),
+               imean = mean(incident_days, na.rm = TRUE),
+               imedian = median(incident_days, na.rm = TRUE),
+               iIQR = IQR(incident_days, na.rm = TRUE)) %>%
+    arrange( desc( dmean ) )
+#groupedbyDType
+```
+
+Boxplot of Disaster Declaration Durations by Incident Type
+```{r}
+lowerlim <- groupedbyDType$dmedian - groupedbyDType$dIQR
+lowerlim <- ifelse(lowerlim < 0, 0, lowerlim)
+yminlim <- groupedbyDType$dmedian - 3*groupedbyDType$dIQR
+yminlim <- ifelse( yminlim < 0, 0, yminlim )
+ggplot(groupedbyDType, aes(x = as.factor(incidentType))) +
+  geom_boxplot(aes(
+      lower = lowerlim, 
+      upper = dmedian + dIQR, 
+      middle = dmedian, 
+      ymin = yminlim, 
+      ymax = dmedian + 3*dIQR),
+    stat = "identity") +
+    ggtitle('Disaster Declaration Duration by Incident Type') +
+    xlab('Disaster Type') +
+    ylab('Duration (days)') +
+    ylim( c(-10,15000)) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+<br>
+Boxplot of Incident Duration by Incident type:
+```{r}
+lowerlim <- groupedbyDType$imedian - groupedbyDType$iIQR
+lowerlim <- ifelse(lowerlim < 0, 0, lowerlim)
+yminlim <- groupedbyDType$imedian - 3*groupedbyDType$iIQR
+yminlim <- ifelse( yminlim < 0, 0, yminlim )
+ggplot(groupedbyDType, aes(x = as.factor(incidentType))) +
+  geom_boxplot(aes(
+      lower = lowerlim, 
+      upper = imedian + iIQR, 
+      middle = imedian, 
+      ymin = yminlim, 
+      ymax = imedian + 3*iIQR),
+    stat = "identity") +
+    ggtitle('Incident Duration by Incident Type') +
+    xlab('Disaster Type') +
+    ylab('Duration (days)') +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+<br>
+The incident Duration by Incident Type plot is very informative because it shows that only a subset of the incident types have much variability in incident duration. Revisualize the scatterplot of Disaster Declaration Duration relationship with duration of the Incident while selecting for 'Fire'.
+```{r, warning=F, message=F}
+justFires <- groupedByEvent %>%
+  filter( incidentType == "Fire")
+p1 <- ggplot(justFires, aes( y = duration_days, x = incident_days, 
+                                  color = incidentType )) +
+    geom_point( size = 1 ) +
+    geom_smooth(method='lm', formula= y~x) +
+    labs( title = "Disaster Declaration Duration relationship with duration of the Fire") +
+    ylab( "Disaster Declaration Duration (days)" ) +
+    xlab( "Fire Duration (days)") +
+    xlim( c(0,100))
+p1
+```
+<br>
+The data for fire incidents above does not suggest a strong positive relationship between the duration of a fire and the duration of FEMA's closeout time. This is informative because fires had one of the largest distribution speads of the incident types. Seeing no relationship here suggests that, moving forward, incident duration might not be a critical feature for explaining the declaration durations.
+
+One of the most interesting aspects of this data set is that it associates any given disaster with the US counties that were affected. The following are several visualizations that utilize the R library usmap with the `countyfips` data to visualize the extent that a disaster or disasters have had on the US.
+
+Visualize the counties involved in the most extensive flood:
+```{r}
+storms <- groupedByEvent %>%
+    filter( incidentType == 'Flood' ) %>%
+    arrange( desc( countiesInvolved))
+
+head( storms )
+```
+```{r, message=F, warning=F}
+topflood <- disaster_df %>%
+    filter( disasterNumber == 339, incidentType == 'Flood' ) %>%
+    select( countyfips, county3 ) %>%
+    rename( fips = countyfips ) %>%
+    mutate( county3 = 1)
+p1 <- plot_usmap( regions = "counties", data = topflood, values = "county3", color = "blue") +
+    scale_fill_gradient( low = "white", high = "blue", limits = c(0,1) ) +
+  labs( title = 'Involved Counties: US') +
+  theme( legend.position = "none")
+p1
+```
+<br>
+More information about this specific event can be found [on fema.gov](https://www.fema.gov/disaster/339)
+
+Next, show which counties have had the most disaster declarations:
+```{r, warning=F, message=F}
+myColors <- c("#0066FFFF", "#0066FFFF", "#0066FFFF", "#00CCFFFF", 
+              "#00FFCCFF", "#00FF66FF", "#00FF00FF", "#66FF00FF", "#CCFF00FF",
+              "#FFCC00FF", "#FF6600FF", "#FF0000FF", "#FF0000FF")
+countyDisasterCount <- disaster_df %>%
+    group_by( countyfips ) %>%
+    summarise( Count = n() ) %>%
+    rename( fips = countyfips )
+p1 <- plot_usmap( regions = "counties", data = countyDisasterCount, values = "Count", color = "gray50") +
+    scale_fill_gradientn(name='Declarations', colours = myColors) +
+  labs( title = 'Involved Counties: US') +
+  theme( legend.position = "right")
+p2 <- plot_usmap( regions = "counties", include = .northeast_region, data = countyDisasterCount, values = "Count", color = "gray50") +
+    scale_fill_gradientn(name='Declarations', colours = myColors) +
+  labs( title = 'Involved Counties: North East') +
+  theme( legend.position = "right")
+p1
+p2
+```
+<br>
+Plotting the data on the US map shows that some areas have more disaster declarations that others
+
+Visualize the counties with the longest mean disaster declaration duration:
+```{r, message=F, warning=F}
+countyMeanDur <- disaster_df %>%
+    group_by( countyfips ) %>%
+    summarise( Mean = mean( duration_days, na.rm = T )) %>%
+    rename( fips = countyfips )
+p1 <- plot_usmap( regions = "counties", data = countyMeanDur, values = "Mean", color = "gray50") +
+    scale_fill_gradientn(name='Mean Duration', colours = myColors) +
+  labs( title = 'Involved Counties: US') +
+  theme( legend.position = "right")
+p2 <- plot_usmap( regions = "counties", include = .northeast_region, data = countyMeanDur, values = "Mean", color = "gray50") +
+    scale_fill_gradientn(name='Mean Duration', colours = myColors) +
+  labs( title = 'Involved Counties: North East') +
+  theme( legend.position = "right")
+p3 <- plot_usmap( regions = "counties", include = .west_region, data = countyMeanDur, values = "Mean", color = "gray50") +
+    scale_fill_gradientn(name='Mean Duration', colours = myColors) +
+  labs( title = 'Involved Counties: West') +
+  theme( legend.position = "right")
+p4 <- plot_usmap( regions = "counties", include = .north_central_region, data = countyMeanDur, values = "Mean", color = "gray50") +
+    scale_fill_gradientn(name='Mean Duration', colours = myColors) +
+  labs( title = 'Involved Counties: North Central') +
+  theme( legend.position = "right")
+p1
+p2
+p3
+p4
+```
+<br>
+The map visualizations give the impression that some states have longer disaster declaration durations than others. For example, in the North East plot above, many of the New York State counties are very high (red/orange), whereas New Hampshire counties are comparatively low (dark blue).
+
+Is there a relationship between the number of disaster declarations in a county and the mean declaration duration?
+```{r, warning=F, message=F}
+countyDat <- inner_join( countyMeanDur, countyDisasterCount )
+p1 <- ggplot(countyDat, aes( x = Count, y = Mean )) +
+    geom_point( size = 1, position = "jitter" ) +
+    geom_smooth(method='lm', formula= y~x) +
+    labs( title = "Mean Disaster Declaration Duration relationship with number of Declaration") +
+    ylab( "Mean Disaster Declaration Duration (days)" ) +
+    xlab( "Count") +
+    xlim( c(0,75))
+p1
+```
+<br>
+```{r}
+cor( countyDat$Mean, countyDat$Count, use="complete.obs")
+```
+<br>
+There appears to be a positive trend between the number of disaster declarations and the mean duration of a county's disaster declarations. This suggests that for counties that have more disasters it generally takes FEMA longer to close-out the declaration.
+
+There are four FEMA declaration types described below:
+
+|      |    Declaration Type   |
+|------|:---------------------:|
+| DR   |     Major Disaster    |
+| EM   | Emergency Declaration |
+| FS   |    Fire Suppression   |
+| FM   |    Fire Management    |
+
+The next visualization will explore how declaration closeout time has changed over the years for each of the four declaration types (DR, EM, FS & FM):
+```{r, warning=F, message=F}
+decTypeByYear <- disaster_df %>%
+  group_by( disasterNumber, incidentType, incidentBeginDate, duration_days, disasterType, fyDeclared ) %>%
+  summarise( N = n()) %>%
+  group_by( disasterType, fyDeclared ) %>%
+  summarise( meanDur = mean( duration_days, na.rm = T  ))
+
+p1 <- ggplot( decTypeByYear, aes( fyDeclared, meanDur, 
+                                  shape = disasterType, color = disasterType,
+                                  fill= disasterType)) +
+  #geom_smooth(method="lm") +
+  geom_point(size=3)  
+p1
+```
+<br>
+Interesting and not what was anticipated. For the declaration type, "DR" and "EM" (Major Disasters and Emergency respectively) there is a clear increase in Disaster Declaration Duration up until the mid 90s after which the values drop precipitously. The two other categories for fire declarations ("FM" & "FS") so not have complete data sets, so they will not be considered for further analysis. This finding is very interesting, becuase it shows that, although there is a national and global trend for an increase in frequency of natural disasters accompanied by in increase in the cost to remediate them, that the time that it takes FEMA to close-out disasters has been following a downward trend for the past 20 years! The next section will attempt to model the mean declaration durations by fiscal year. This concludes the exploration of the data.
+
+
+## Modelling the envelope of disaster declaration durations through the years
+A linear model is clearly not appropriate for this data, and here is visualized why this is the case:
+```{r, warning=F, message=F}
+decTypeByYear <- decTypeByYear %>%
+  filter( disasterType %in% c( "DR", "EM"))
+p1 <- ggplot( decTypeByYear, aes( fyDeclared, meanDur, 
+                                  shape = disasterType, color = disasterType,
+                                  fill= disasterType)) +
+  geom_smooth(method="lm") +
+  geom_point(size=3)  
+p1
+DRdat <- decTypeByYear %>% filter( disasterType == 'DR', meanDur >= 0 ) 
+EMdat <- decTypeByYear %>% filter( disasterType == 'EM', meanDur >= 0 ) 
+m1 <- lm( meanDur ~ fyDeclared, data = DRdat )
+m2 <- lm( meanDur ~ fyDeclared, data = EMdat )
+p2 <- plot( m1$residuals ~ DRdat$fyDeclared, main  = "Residuals for DM") +
+  abline( h=0, lty=3)
+p2
+p3 <- plot( m2$residuals ~ EMdat$fyDeclared, main = "Residuals for EM") +
+  abline( h=0, lty=3)
+p3
+```
+<br>
+Clearly it is not reasonable to fit this data with a linear model. The curvature to the envelope of the datapoints causes the residuals to deviate strongly to positive values for both data series (DR &EM).
+
+Now to try a slightly more advanced method: 
+```{r}
+p1 <- ggplot( DRdat, aes( fyDeclared, meanDur )) + 
+  geom_point() + 
+  geom_smooth() +
+  labs( title = "DR data series")
+p1
+```
+<br>
+The is obvious curvature to the above plot of the "DR" data series. The following code will use methods from the `caret` library to perform polynomial regression.
+
+```{r}
+dataSplit <- createDataPartition( DRdat$fyDeclared, p = 0.8, list=F )
+DRtrain <- DRdat[dataSplit,]
+DRtest <- DRdat[-dataSplit,]
+#the model was first run with 5 coeffs, but only 3 were significant, so the model was adjusted to 3
+numCoeffs <- 3
+polyNomNom <- lm( meanDur ~ poly( fyDeclared, numCoeffs ), data = DRtrain )
+summary( polyNomNom )
+```
+
+```{r}
+predictionDR <- predict( polyNomNom, DRtrain )
+regr.eval( DRtrain$meanDur, predictionDR )
+```
+Now to test the polynomial model:
+```{r}
+predictionDR_Test <- predict( polyNomNom, DRtest )
+regr.eval( DRtest$meanDur, predictionDR_Test )
+```
+<br>
+The `mape` gives the 'mean absolute percentage error for regression loss'. It is the measure of accuracy and means that out model fits the test data with 15.15% errors. Therefore, the model has an accuracy of 84.85%.
+
+Plot the model with the DR dataset:
+```{r}
+#use the model to predict for the whole dataset
+predictionDR_all <- predict( polyNomNom, DRdat )
+regr.eval( DRdat$meanDur, predictionDR_all )
+DRdat$modVals <- predictionDR_all
+p1 <- ggplot( DRdat, aes( fyDeclared, meanDur )) + 
+  geom_point() + 
+  labs( title = "Polynomial fit to DR",
+        subtitle = 'DR Disaster Declaration Duration Fluctuations 1950s-present') +
+  geom_line( aes(y= DRdat$modVals, x = DRdat$fyDeclared ))
+p1
+```
+<br>
+Now to check that conditions are met so that the model is being appropriately applied.
+
+1. Linearity Check
+```{r}
+DRdat$resids <- DRdat$modVals - DRdat$meanDur
+p1 <- plot( DRdat$resids ~ DRdat$fyDeclared) +
+  abline( h=0)
+p1
+```
+<br>
+From the figure above, there is reasonable symmetry of the residuals about the line.
+
+Next to test for normality of the residuals with the Shapiro-Wilk test using the `car` library:
+```{r}
+shapiro.test( DRdat$resids )
+```
+<br>
+The null hypothesis for this test is that the residuals are normally distributed. Therefore, the data is normal if the p-value is above 0.5. The output above gives a p-value of 0.9811. The interpretation is that the residuals pass the test of normality.
+
+Next, evaluate the error rate of the residuals
+```{r}
+DRresidsVar <- var( DRdat$resids ) #variance of residuals
+DRdat$SRes <- sqrt( abs( DRdat$resids/DRresidsVar ) )#sqrt of standardized residuals
+
+p1 <- plot( DRdat$SRes ~ DRdat$fyDeclared) +
+  abline( h=0)
+p1
+```
+<br>
+There is no obvious change in range of the sqrt( Standardized Residuals ). Therefore, the error rate appears toremain constant throughout the series.
+
+Next the check for the Independence of Errors:
+```{r}
+durbinWatsonTest( lm( meanDur ~ poly( fyDeclared, numCoeffs ), data = DRdat ) )
+```
+<br>
+The p-value is 0.01 < p-value < 0.05 so this is a border line case for rejecting the null hypothesis, but the result suggests that there is correlation between the errors to be considered.
+
+Lastly, check for major outliers of the residual:
+```{r}
+histogram( DRdat$resids )
+```
+<br>
+There are no major outliers & the residuals distributions appears quite normal.
+
+How well does this model work with the 'EM' data series?
+```{r}
+#use the model to predict for the whole dataset
+polyNomNomNom <- lm( meanDur ~ poly( fyDeclared, numCoeffs ), data = EMdat )
+predictionEM_all <- predict( polyNomNomNom, EMdat )
+regr.eval( EMdat$meanDur, predictionEM_all )
+EMdat$modVals <- predictionEM_all
+p1 <- ggplot( EMdat, aes( fyDeclared, meanDur )) + 
+  geom_point() + 
+  labs( title = "Polynomial fit to EM",
+        subtitle = 'EM Disaster Declaration Duration Fluctuations 1950s-present') +
+  geom_line( aes(y= EMdat$modVals, x = EMdat$fyDeclared ))
+p1
+```
+<br>
+Considering the EM dataset is much sparcer & more varaible than the DR dataset, this appears to be an acceptable modelling attempt of the second dataset.
+
+
+## Conclusions
+The analysis of this dataset took some interesting turns. The research direction started out to look for how FEMA Disaster Closeout time may have changed in the time that FEMA has been issuing disaster declarations. This was motivated by the fact that the number of annual disaster declarations has been on the rise as has the annual burden on US tax payers. If FEMA disaster cloeout times were to rise as well, then this would compound the financial burden and strain on resources. However, and rather unexpectedly, FEMA's disaster declaration durations were found to follow an unusual patter: there was a consistent positive trend from earlier years that plateaus just before the year 2000. Into the new millenium, the declaration durations were observed to follow a negative trend. This particular dataset does not offer direct evidence as to why the velocity of the data shifts so dramatically. Thankfully, we have Google! Although the plateau of declaration durations precedes this, there were dramatic policy [changes to FEMA following Hurricane Katrina](https://www.fema.gov/news-release/2015/07/30/fema-outlines-decade-progress-after-hurricane-katrina). 
+
+This behavior of the durations data was modelled using polynomial regression techniques with the `caret` library and several other statistics packages. While performing the exploratory analysis of the dataset, many visualizations were made that levied the US county data. For future work with this data set, it would be very interesting to pull demographic data (e.g. from the CDC's WONDER database) to include as features to perform more sophisticated analyses.
+
+
+<br><br><br><br>
+
+
+
+
+
+
+
